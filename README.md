@@ -1,58 +1,338 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# WatchShop
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Hệ thống thương mại điện tử chuyên kinh doanh đồng hồ, được xây dựng bằng Laravel. Ứng dụng cung cấp giao diện mua sắm cho khách hàng và khu vực quản trị để quản lý sản phẩm, thương hiệu, loại sản phẩm, đơn hàng, người dùng và hồ sơ tuyển dụng.
 
-## About Laravel
+## Mục lục
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+- [Tổng quan](#tổng-quan)
+- [Tính năng](#tính-năng)
+- [Công nghệ sử dụng](#công-nghệ-sử-dụng)
+- [Yêu cầu hệ thống](#yêu-cầu-hệ-thống)
+- [Cài đặt và khởi chạy](#cài-đặt-và-khởi-chạy)
+- [Tài khoản và phân quyền](#tài-khoản-và-phân-quyền)
+- [Hướng dẫn sử dụng](#hướng-dẫn-sử-dụng)
+- [Cấu trúc dự án](#cấu-trúc-dự-án)
+- [Mô hình dữ liệu](#mô-hình-dữ-liệu)
+- [Các lệnh hỗ trợ dữ liệu](#các-lệnh-hỗ-trợ-dữ-liệu)
+- [Kiểm thử và định dạng mã nguồn](#kiểm-thử-và-định-dạng-mã-nguồn)
+- [Xử lý sự cố thường gặp](#xử-lý-sự-cố-thường-gặp)
+- [Bảo mật khi triển khai](#bảo-mật-khi-triển-khai)
+- [Giấy phép](#giấy-phép)
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Tổng quan
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+WatchShop mô phỏng quy trình bán đồng hồ trực tuyến:
 
-## Learning Laravel
+1. Khách truy cập xem danh mục và thông tin chi tiết sản phẩm.
+2. Khách lọc sản phẩm theo từ khóa, loại, thương hiệu và khoảng giá.
+3. Khách thêm sản phẩm vào giỏ hàng, cập nhật số lượng và đặt hàng.
+4. Người dùng đăng nhập để quản lý hồ sơ, đổi mật khẩu và theo dõi đơn hàng.
+5. Quản trị viên quản lý dữ liệu cửa hàng và cập nhật trạng thái đơn hàng.
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+Ứng dụng sử dụng SQLite mặc định để đơn giản hóa việc cài đặt và phù hợp cho môi trường học tập, demo hoặc phát triển cục bộ. Có thể chuyển sang MySQL hoặc hệ quản trị cơ sở dữ liệu khác được Laravel hỗ trợ bằng cách điều chỉnh file môi trường.
 
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+## Tính năng
 
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
+### Dành cho khách hàng
 
-## Agentic Development
+- Trang chủ giới thiệu sản phẩm mới và thương hiệu.
+- Danh sách sản phẩm có phân trang.
+- Tìm kiếm theo tên và mô tả sản phẩm.
+- Lọc theo loại sản phẩm, thương hiệu và khoảng giá.
+- Xem thông tin chi tiết, giá, giảm giá, đánh giá và thông số sản phẩm.
+- Giỏ hàng lưu trong session:
+  - Thêm sản phẩm.
+  - Tăng, giảm hoặc xóa sản phẩm.
+  - Kiểm tra số lượng tồn kho khi cập nhật.
+- Đăng ký, đăng nhập và đăng xuất.
+- Cập nhật thông tin cá nhân.
+- Đổi mật khẩu.
+- Đặt hàng với thông tin người nhận, số điện thoại, địa chỉ và ghi chú.
+- Xem lịch sử đơn hàng.
+- Xem trang liên hệ và thông tin tuyển dụng.
 
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
+### Dành cho quản trị viên
+
+Khu vực quản trị nằm tại `/admin` và yêu cầu tài khoản có `role = admin`.
+
+- Dashboard quản trị.
+- CRUD loại sản phẩm.
+- CRUD thương hiệu.
+- CRUD sản phẩm, bao gồm hình ảnh, tồn kho, giá, giảm giá và thông số kỹ thuật.
+- Quản lý trạng thái đơn hàng.
+- Xem, cập nhật và xóa đơn hàng.
+- Quản lý người dùng và vai trò.
+- Xem hồ sơ ứng tuyển, cập nhật trạng thái và tải CV.
+
+## Công nghệ sử dụng
+
+| Thành phần | Công nghệ |
+|---|---|
+| Backend | PHP 8.3+, Laravel 13 |
+| Frontend | Blade, Tailwind CSS 4, Vite |
+| Cơ sở dữ liệu mặc định | SQLite |
+| ORM | Laravel Eloquent |
+| Kiểm thử | PHPUnit 12 |
+| Code style | Laravel Pint |
+| Môi trường phát triển | Windows, WAMP/XAMPP hoặc PHP CLI |
+
+## Yêu cầu hệ thống
+
+- PHP `8.3` trở lên.
+- Composer.
+- Node.js và npm.
+- Git.
+- Một trong các môi trường chạy PHP:
+  - WAMP/XAMPP.
+  - PHP built-in server.
+  - Laravel Herd hoặc môi trường tương đương.
+
+## Cài đặt và khởi chạy
+
+### 1. Clone dự án
 
 ```bash
-composer require laravel/boost --dev
-
-php artisan boost:install
+git clone https://github.com/dth235633-tranvuduy/watchshop.git
+cd watchshop
 ```
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+### 2. Cài đặt dependency
 
-## Contributing
+```bash
+composer install
+npm install
+```
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+### 3. Tạo file môi trường
 
-## Code of Conduct
+Trên Windows PowerShell:
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+```powershell
+Copy-Item .env.example .env
+php artisan key:generate
+```
 
-## Security Vulnerabilities
+Trên Command Prompt:
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+```bat
+copy .env.example .env
+php artisan key:generate
+```
 
-## License
+### 4. Chuẩn bị cơ sở dữ liệu
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+Dự án đã cấu hình SQLite trong `.env.example`. Đảm bảo file `database/database.sqlite` tồn tại, sau đó chạy migration:
+
+```bash
+php artisan migrate
+```
+
+Nếu muốn tạo lại toàn bộ cơ sở dữ liệu trong môi trường phát triển:
+
+```bash
+php artisan migrate:fresh --seed
+```
+
+> `DatabaseSeeder` hiện tạo tài khoản mẫu `test@example.com` với mật khẩu `password` từ factory mặc định. Tài khoản này không có quyền quản trị nếu chưa được gán `role = admin`. Không sử dụng tài khoản mẫu trong môi trường production.
+
+### 5. Build tài nguyên frontend
+
+```bash
+npm run build
+```
+
+### 6. Chạy ứng dụng
+
+```bash
+php artisan serve
+```
+
+Mở [http://127.0.0.1:8000](http://127.0.0.1:8000) trên trình duyệt.
+
+Trong quá trình phát triển giao diện, có thể chạy Vite ở một terminal riêng:
+
+```bash
+npm run dev
+```
+
+### Cài đặt nhanh
+
+Composer đã cung cấp script thiết lập tự động:
+
+```bash
+composer run setup
+```
+
+Lệnh này cài dependency, tạo `.env`, sinh `APP_KEY`, chạy migration, cài package frontend và build tài nguyên.
+
+## Tài khoản và phân quyền
+
+Ứng dụng có hai nhóm quyền chính:
+
+| Vai trò | Quyền |
+|---|---|
+| `user` | Mua hàng, quản lý hồ sơ, đổi mật khẩu và xem đơn hàng của bản thân |
+| `admin` | Truy cập toàn bộ khu vực quản trị và quản lý dữ liệu hệ thống |
+
+Middleware `role:admin` bảo vệ toàn bộ route dưới `/admin`. Không nên gán vai trò quản trị trực tiếp cho người dùng nếu chưa kiểm tra kỹ quyền truy cập.
+
+## Hướng dẫn sử dụng
+
+### Luồng mua hàng
+
+1. Truy cập trang chủ hoặc `/san-pham`.
+2. Tìm kiếm hoặc lọc sản phẩm.
+3. Mở trang chi tiết sản phẩm.
+4. Thêm sản phẩm vào `/gio-hang`.
+5. Đăng nhập hoặc đăng ký tài khoản.
+6. Nhập thông tin giao hàng tại `/user/dat-hang`.
+7. Theo dõi đơn hàng tại `/user/don-hang`.
+
+### Luồng quản trị
+
+1. Đăng nhập bằng tài khoản có `role = admin`.
+2. Truy cập `/admin`.
+3. Khai báo loại sản phẩm và thương hiệu trước khi thêm sản phẩm.
+4. Quản lý sản phẩm tại `/admin/sanpham`.
+5. Theo dõi và cập nhật đơn hàng tại `/admin/donhang`.
+6. Quản lý hồ sơ tuyển dụng tại `/admin/tuyendung`.
+
+## Cấu trúc dự án
+
+```text
+app/
+├── Console/Commands/       # Lệnh Artisan xử lý dữ liệu và hình ảnh
+├── Http/Controllers/       # Controller frontend, user, admin và xác thực
+├── Http/Middleware/        # Middleware phân quyền
+└── Models/                 # Eloquent model
+
+database/
+├── migrations/             # Định nghĩa cấu trúc cơ sở dữ liệu
+├── seeders/                # Dữ liệu khởi tạo và nhập dữ liệu
+└── database.sqlite         # Cơ sở dữ liệu SQLite cục bộ
+
+resources/
+├── css/                    # CSS đầu vào
+├── js/                     # JavaScript đầu vào
+└── views/                  # Blade views frontend, user, admin và auth
+
+routes/
+└── web.php                # Route web của ứng dụng
+
+storage/app/private/        # Hình ảnh sản phẩm, logo và CV không public
+```
+
+## Mô hình dữ liệu
+
+Các bảng nghiệp vụ chính:
+
+- `users`: tài khoản và vai trò người dùng.
+- `loaisanpham`: loại sản phẩm.
+- `hangsanxuat`: thương hiệu/nhà sản xuất.
+- `sanpham`: thông tin, giá, tồn kho và hình ảnh sản phẩm.
+- `tinhtrang`: danh mục trạng thái đơn hàng.
+- `donhang`: thông tin đơn hàng và người nhận.
+- `donhang_chitiet`: các sản phẩm thuộc đơn hàng.
+- `don_ung_tuyens`: hồ sơ ứng tuyển và trạng thái xử lý.
+
+Hình ảnh và CV được lưu trên private disk, sau đó được phục vụ qua các route có kiểm soát thay vì đặt trực tiếp trong thư mục public.
+
+## Các lệnh hỗ trợ dữ liệu
+
+### Gán ảnh có sẵn cho sản phẩm
+
+Đặt ảnh vào `storage/app/private/import/anh-san-pham`, đặt tên file theo slug sản phẩm, sau đó chạy thử:
+
+```bash
+php artisan sanpham:import-images --dry-run
+```
+
+Nếu kết quả đúng, chạy lệnh ghi dữ liệu:
+
+```bash
+php artisan sanpham:import-images
+```
+
+### Tải ảnh sản phẩm từ URL
+
+```bash
+php artisan products:download-images
+```
+
+### Tải logo thương hiệu
+
+```bash
+php artisan brands:download-logos
+```
+
+Các lệnh tải dữ liệu bên ngoài cần kết nối mạng. Hãy kiểm tra nguồn ảnh, quyền sử dụng nội dung và kết quả tải trước khi dùng cho môi trường thật.
+
+## Kiểm thử và định dạng mã nguồn
+
+Chạy toàn bộ test:
+
+```bash
+php artisan test --compact
+```
+
+Hoặc:
+
+```bash
+composer test
+```
+
+Định dạng các file PHP đã thay đổi:
+
+```bash
+vendor/bin/pint --dirty --format agent
+```
+
+## Xử lý sự cố thường gặp
+
+### Lỗi `No application encryption key has been specified`
+
+Chạy:
+
+```bash
+php artisan key:generate
+```
+
+### Lỗi bảng hoặc cột chưa tồn tại
+
+Kiểm tra cấu hình database trong `.env`, sau đó chạy:
+
+```bash
+php artisan migrate
+```
+
+Trong môi trường phát triển có thể dùng `php artisan migrate:fresh --seed`, nhưng lệnh này sẽ xóa toàn bộ dữ liệu hiện có.
+
+### Giao diện không cập nhật hoặc lỗi manifest Vite
+
+Chạy lại:
+
+```bash
+npm install
+npm run build
+```
+
+### Hình ảnh không hiển thị
+
+- Kiểm tra file có nằm trong `storage/app/private` hay không.
+- Kiểm tra giá trị `hinhanh` trong bảng `sanpham`.
+- Kiểm tra log tại `storage/logs/laravel.log`.
+- Không đưa CV hoặc hình ảnh riêng tư vào thư mục public.
+
+## Bảo mật khi triển khai
+
+- Không commit file `.env`, `APP_KEY`, mật khẩu hoặc thông tin kết nối cơ sở dữ liệu.
+- Đặt `APP_ENV=production` và `APP_DEBUG=false` trên production.
+- Dùng mật khẩu mạnh cho tài khoản quản trị.
+- Chỉ cấp quyền ghi cần thiết cho các thư mục `storage` và `bootstrap/cache`.
+- Không sử dụng `migrate:fresh` trên production.
+- Kiểm tra nguồn và giấy phép của hình ảnh tải từ bên ngoài.
+- Sao lưu cơ sở dữ liệu trước các thao tác cập nhật dữ liệu lớn.
+
+## Giấy phép
+
+Dự án sử dụng framework Laravel, được phát hành theo [giấy phép MIT](https://opensource.org/licenses/MIT). Giấy phép và quyền sử dụng các tài nguyên sản phẩm, logo hoặc hình ảnh bên ngoài cần được kiểm tra riêng trước khi phát hành thương mại.
