@@ -1,12 +1,33 @@
+<div align="center">
+
 # WatchShop
 
-Hệ thống thương mại điện tử chuyên kinh doanh đồng hồ, được xây dựng bằng Laravel. Ứng dụng cung cấp giao diện mua sắm cho khách hàng và khu vực quản trị để quản lý sản phẩm, thương hiệu, loại sản phẩm, đơn hàng, người dùng và hồ sơ tuyển dụng.
+### Nền tảng thương mại điện tử kinh doanh đồng hồ trực tuyến
+
+Ứng dụng web hỗ trợ khách hàng tìm kiếm, lựa chọn và đặt mua đồng hồ, đồng thời cung cấp hệ thống quản trị tập trung cho cửa hàng.
+
+<p>
+  <img src="https://img.shields.io/badge/PHP-8.3%2B-777BB4?style=for-the-badge&logo=php&logoColor=white" alt="PHP 8.3+">
+  <img src="https://img.shields.io/badge/Laravel-13-FF2D20?style=for-the-badge&logo=laravel&logoColor=white" alt="Laravel 13">
+  <img src="https://img.shields.io/badge/Blade-Template-F7523F?style=for-the-badge&logo=laravel&logoColor=white" alt="Blade Template">
+  <img src="https://img.shields.io/badge/Tailwind_CSS-4-06B6D4?style=for-the-badge&logo=tailwindcss&logoColor=white" alt="Tailwind CSS 4">
+</p>
+<p>
+  <img src="https://img.shields.io/badge/Vite-8-646CFF?style=for-the-badge&logo=vite&logoColor=white" alt="Vite 8">
+  <img src="https://img.shields.io/badge/SQLite-Database-003B57?style=for-the-badge&logo=sqlite&logoColor=white" alt="SQLite">
+  <img src="https://img.shields.io/badge/Eloquent-ORM-FF2D20?style=for-the-badge&logo=laravel&logoColor=white" alt="Eloquent ORM">
+  <img src="https://img.shields.io/badge/PHPUnit-12-3C9CD7?style=for-the-badge&logo=php&logoColor=white" alt="PHPUnit 12">
+</p>
+
+</div>
+
+---
 
 ## Mục lục
 
 - [Tổng quan](#tổng-quan)
 - [Tính năng](#tính-năng)
-- [Công nghệ sử dụng](#công-nghệ-sử-dụng)
+- [Công nghệ đã sử dụng](#công-nghệ-đã-sử-dụng)
 - [Yêu cầu hệ thống](#yêu-cầu-hệ-thống)
 - [Cài đặt và khởi chạy](#cài-đặt-và-khởi-chạy)
 - [Tài khoản và phân quyền](#tài-khoản-và-phân-quyền)
@@ -30,6 +51,20 @@ WatchShop mô phỏng quy trình bán đồng hồ trực tuyến:
 5. Quản trị viên quản lý dữ liệu cửa hàng và cập nhật trạng thái đơn hàng.
 
 Ứng dụng sử dụng SQLite mặc định để đơn giản hóa việc cài đặt và phù hợp cho môi trường học tập, demo hoặc phát triển cục bộ. Có thể chuyển sang MySQL hoặc hệ quản trị cơ sở dữ liệu khác được Laravel hỗ trợ bằng cách điều chỉnh file môi trường.
+
+## Công nghệ đã sử dụng
+
+| Thành phần | Công nghệ |
+|---|---|
+| Ngôn ngữ lập trình | PHP 8.3+ |
+| Backend framework | Laravel 13 |
+| Giao diện | Blade Template, Tailwind CSS 4 |
+| Build frontend | Vite 8 |
+| Cơ sở dữ liệu | SQLite |
+| ORM | Laravel Eloquent |
+| Kiểm thử | PHPUnit 12 |
+| Định dạng mã nguồn | Laravel Pint |
+| Môi trường phát triển | Windows, WAMP/XAMPP, PHP CLI |
 
 ## Tính năng
 
@@ -63,18 +98,6 @@ Khu vực quản trị nằm tại `/admin` và yêu cầu tài khoản có `rol
 - Xem, cập nhật và xóa đơn hàng.
 - Quản lý người dùng và vai trò.
 - Xem hồ sơ ứng tuyển, cập nhật trạng thái và tải CV.
-
-## Công nghệ sử dụng
-
-| Thành phần | Công nghệ |
-|---|---|
-| Backend | PHP 8.3+, Laravel 13 |
-| Frontend | Blade, Tailwind CSS 4, Vite |
-| Cơ sở dữ liệu mặc định | SQLite |
-| ORM | Laravel Eloquent |
-| Kiểm thử | PHPUnit 12 |
-| Code style | Laravel Pint |
-| Môi trường phát triển | Windows, WAMP/XAMPP hoặc PHP CLI |
 
 ## Yêu cầu hệ thống
 
