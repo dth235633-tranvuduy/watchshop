@@ -27,12 +27,21 @@
 @section('content')
 {{-- Hero Slider --}}
 <div id="heroCarousel" class="carousel slide hero-slider mb-5" data-bs-ride="carousel">
-    <div class="carousel-indicators">
-        <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="0" class="active"></button>
-        <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="1"></button>
-        <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="2"></button>
-    </div>
+    @if($banners->isNotEmpty())
+        <div class="carousel-indicators">
+            @foreach($banners as $index => $banner)<button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="{{ $index }}" class="{{ $index === 0 ? 'active' : '' }}"></button>@endforeach
+        </div>
+    @endif
     <div class="carousel-inner">
+        @if($banners->isNotEmpty())
+            @foreach($banners as $index => $banner)
+                @php $bannerImage = str_starts_with($banner->hinh_anh, 'http') ? $banner->hinh_anh : route('frontend.hinhanh', ['path' => $banner->hinh_anh]); @endphp
+                <div class="carousel-item {{ $index === 0 ? 'active' : '' }}">
+                    <img src="{{ $bannerImage }}" class="d-block w-100" alt="{{ $banner->tieu_de }}">
+                    <div class="carousel-caption"><span class="eyebrow">Watch Shop</span><h2>{{ $banner->tieu_de }}</h2><p>{{ $banner->mo_ta }}</p>@if($banner->duong_dan)<a href="{{ $banner->duong_dan }}" class="btn btn-gold btn-lg px-4">Khám phá ngay <i class="fas fa-arrow-right ms-1"></i></a>@endif</div>
+                </div>
+            @endforeach
+        @else
         <div class="carousel-item active">
             <img src="https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=1600&h=600&fit=crop" class="d-block w-100" alt="Đồng hồ nam">
             <div class="carousel-caption">
@@ -60,6 +69,7 @@
                 <a href="{{ route('frontend.sanpham') }}" class="btn btn-gold btn-lg px-4">Mua ngay <i class="fas fa-arrow-right ms-1"></i></a>
             </div>
         </div>
+        @endif
     </div>
     <button class="carousel-control-prev" type="button" data-bs-target="#heroCarousel" data-bs-slide="prev"><span class="carousel-control-prev-icon"></span></button>
     <button class="carousel-control-next" type="button" data-bs-target="#heroCarousel" data-bs-slide="next"><span class="carousel-control-next-icon"></span></button>

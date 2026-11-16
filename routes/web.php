@@ -1,5 +1,10 @@
 <?php
 
+use App\Http\Controllers\AdminActivityLogController;
+use App\Http\Controllers\AdminBannerController;
+use App\Http\Controllers\AdminInventoryController;
+use App\Http\Controllers\AdminReviewController;
+use App\Http\Controllers\AdminVoucherController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DonHangController;
 use App\Http\Controllers\HangSanXuatController;
@@ -51,7 +56,7 @@ Route::name('frontend.')->group(function () {
 // ============================================================================
 // NHÓM 2: ROUTES NGƯỜI DÙNG (User) - Cần đăng nhập
 // ============================================================================
-Route::prefix('user')->name('user.')->middleware('auth')->group(function () {
+Route::prefix('user')->name('user.')->middleware(['auth', 'activity'])->group(function () {
     Route::get('/', [KhachHangController::class, 'getHome'])->name('home');
     Route::get('/home', [KhachHangController::class, 'getHome'])->name('home');
 
@@ -64,6 +69,8 @@ Route::prefix('user')->name('user.')->middleware('auth')->group(function () {
     Route::get('/don-hang', [KhachHangController::class, 'getDonHang'])->name('donhang');
     Route::get('/dat-hang', [KhachHangController::class, 'getDatHang'])->name('dathang');
     Route::post('/dat-hang', [KhachHangController::class, 'postDatHang'])->name('dathang');
+    Route::post('/ap-dung-voucher', [KhachHangController::class, 'postApDungVoucher'])->name('voucher.apdung');
+    Route::post('/danh-gia/{sanphamId}', [KhachHangController::class, 'postDanhGia'])->name('danhgia.luu');
     Route::get('/dat-hang-thanh-cong', [KhachHangController::class, 'getDatHangThanhCong'])->name('dathangthanhcong');
 
     Route::post('/dang-xuat', [KhachHangController::class, 'postDangXuat'])->name('dangxuat');
@@ -75,10 +82,40 @@ Route::get('/user/dang-nhap', [AuthController::class, 'showLogin'])->name('user.
 // ============================================================================
 // NHÓM 3: ROUTES QUẢN TRỊ (Admin) - Cần đăng nhập
 // ============================================================================
-Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin'])->group(function () {
+Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin', 'activity'])->group(function () {
 
     Route::get('/', [QuanTriVienController::class, 'getHome'])->name('home');
     Route::get('/home', [QuanTriVienController::class, 'getHome'])->name('home');
+
+    // --- Kho hàng & nhập hàng ---
+    Route::get('/kho', [AdminInventoryController::class, 'index'])->name('kho.danhsach');
+    Route::get('/kho/nhap', [AdminInventoryController::class, 'create'])->name('kho.them');
+    Route::post('/kho/nhap', [AdminInventoryController::class, 'store'])->name('kho.luu');
+    Route::post('/kho/nha-cung-cap', [AdminInventoryController::class, 'storeSupplier'])->name('kho.nhacungcap.luu');
+
+    // --- Mã giảm giá ---
+    Route::get('/voucher', [AdminVoucherController::class, 'index'])->name('voucher.danhsach');
+    Route::get('/voucher/them', [AdminVoucherController::class, 'create'])->name('voucher.them');
+    Route::post('/voucher', [AdminVoucherController::class, 'store'])->name('voucher.luu');
+    Route::get('/voucher/{voucher}/sua', [AdminVoucherController::class, 'edit'])->name('voucher.sua');
+    Route::put('/voucher/{voucher}', [AdminVoucherController::class, 'update'])->name('voucher.capnhat');
+    Route::delete('/voucher/{voucher}', [AdminVoucherController::class, 'destroy'])->name('voucher.xoa');
+
+    // --- Đánh giá sản phẩm ---
+    Route::get('/danh-gia', [AdminReviewController::class, 'index'])->name('danhgia.danhsach');
+    Route::patch('/danh-gia/{danhGia}', [AdminReviewController::class, 'update'])->name('danhgia.capnhat');
+
+    // --- Banner trang chủ ---
+    Route::get('/banner', [AdminBannerController::class, 'index'])->name('banner.danhsach');
+    Route::get('/banner/them', [AdminBannerController::class, 'create'])->name('banner.them');
+    Route::post('/banner', [AdminBannerController::class, 'store'])->name('banner.luu');
+    Route::get('/banner/{banner}/sua', [AdminBannerController::class, 'edit'])->name('banner.sua');
+    Route::put('/banner/{banner}', [AdminBannerController::class, 'update'])->name('banner.capnhat');
+    Route::delete('/banner/{banner}', [AdminBannerController::class, 'destroy'])->name('banner.xoa');
+
+    Route::get('/lich-su', [AdminActivityLogController::class, 'index'])->name('lichsu.danhsach');
+    Route::delete('/lich-su/{activityLog}', [AdminActivityLogController::class, 'destroy'])->name('lichsu.xoa');
+    Route::delete('/lich-su', [AdminActivityLogController::class, 'clear'])->name('lichsu.xoahet');
 
     // --- LoaiSanPham ---
     Route::get('/loaisanpham', [LoaiSanPhamController::class, 'getDanhSach'])->name('loaisanpham.danhsach');

@@ -178,6 +178,139 @@
         /* ---------- Utility ---------- */
         .text-gold { color: var(--ws-gold) !important; }
         .bg-gold-soft { background: rgba(201,162,39,.10); color: var(--ws-gold); }
+
+        /* ---------- Desktop sidebar ---------- */
+        @media (min-width: 992px) {
+            body {
+                padding-top: 0;
+                zoom: .9;
+            }
+
+            .ws-admin-nav {
+                width: 252px;
+                height: calc(100vh / .9);
+                padding: 24px 16px;
+                align-items: stretch;
+            }
+
+            .ws-admin-nav > .container-xxl {
+                width: 100%;
+                height: 100%;
+                padding: 0;
+                margin: 0;
+                display: flex;
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .ws-admin-brand {
+                margin: 0 8px 30px;
+                font-size: 1.25rem;
+            }
+
+            .ws-admin-brand .brand-icon { width: 36px; height: 36px; }
+
+            .ws-admin-nav .navbar-collapse {
+                display: flex !important;
+                flex: 1;
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .ws-admin-nav .navbar-nav {
+                width: 100%;
+                display: flex;
+                flex-direction: column;
+                align-items: stretch;
+                margin-left: 0 !important;
+                margin-right: 0 !important;
+            }
+
+            .ws-admin-nav .navbar-nav:first-child { gap: 5px; }
+
+            .ws-admin-nav .nav-link {
+                margin: 0;
+                padding: 12px 14px !important;
+                border-radius: 12px;
+                justify-content: flex-start;
+            }
+
+            .ws-admin-nav .nav-link::after {
+                left: 0;
+                bottom: 0;
+                width: 3px;
+                height: 100%;
+                border-radius: 0 4px 4px 0;
+                transform: scaleY(0);
+                transform-origin: center;
+            }
+
+            .ws-admin-nav .nav-link:hover::after,
+            .ws-admin-nav .nav-link.active::after {
+                transform: scaleY(1);
+            }
+
+            .ws-admin-nav .nav-link:hover,
+            .ws-admin-nav .nav-link.active { background: rgba(201,162,39,.12); }
+
+            .ws-admin-nav .navbar-collapse > .navbar-nav:last-child {
+                margin-top: auto !important;
+                padding-top: 18px;
+                border-top: 1px solid rgba(255,255,255,.10);
+            }
+
+            .ws-admin-nav .navbar-collapse > .navbar-nav:last-child .nav-link {
+                padding: 10px 8px !important;
+            }
+
+            .ws-admin-nav .navbar-collapse > .navbar-nav:last-child .dropdown-menu {
+                top: auto;
+                bottom: 100%;
+                right: 0;
+                left: auto;
+                margin-top: 0;
+                margin-bottom: 8px;
+            }
+
+            main.container-xxl {
+                max-width: none;
+                margin-left: 252px;
+                width: calc(100% - 252px);
+                padding-left: clamp(24px, 4vw, 64px) !important;
+                padding-right: clamp(24px, 4vw, 64px) !important;
+            }
+        }
+
+        @media (max-width: 991.98px) {
+            .ws-admin-nav .navbar-nav { gap: 0; }
+        }
+
+        .admin-store-link {
+            position: fixed;
+            top: 24px;
+            right: 32px;
+            z-index: 1031;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--ws-ink);
+            text-decoration: none;
+            font-size: .88rem;
+            font-weight: 600;
+            padding: 9px 14px;
+            border: 1px solid var(--ws-line);
+            border-radius: 999px;
+            background: rgba(255,255,255,.92);
+            box-shadow: 0 5px 16px rgba(13,13,13,.08);
+            transition: .2s ease;
+        }
+
+        .admin-store-link i { color: var(--ws-gold); }
+        .admin-store-link:hover { color: var(--ws-gold); border-color: var(--ws-gold); transform: translateY(-1px); }
+
+        @media (max-width: 991.98px) {
+            .admin-store-link { display: none; }
+        }
     </style>
     @stack('styles')
 </head>
@@ -211,6 +344,22 @@
                     <li class="nav-item">
                         <a class="nav-link {{ request()->routeIs('admin.nguoidung.*') ? 'active' : '' }}" href="{{ route('admin.nguoidung.danhsach') }}"><i class="fas fa-users"></i>Người dùng</a>
                     </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ request()->routeIs('admin.lichsu.*') ? 'active' : '' }}" href="{{ route('admin.lichsu.danhsach') }}"><i class="fas fa-clock-rotate-left"></i>Lịch sử</a>
+                    </li>
+                </ul>
+                    <li class="nav-item">
+                        <a class="nav-link {{ request()->routeIs('admin.kho.*') ? 'active' : '' }}" href="{{ route('admin.kho.danhsach') }}"><i class="fas fa-boxes-stacked"></i>Kho hàng</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ request()->routeIs('admin.voucher.*') ? 'active' : '' }}" href="{{ route('admin.voucher.danhsach') }}"><i class="fas fa-ticket"></i>Voucher</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ request()->routeIs('admin.danhgia.*') ? 'active' : '' }}" href="{{ route('admin.danhgia.danhsach') }}"><i class="fas fa-star"></i>Đánh giá</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ request()->routeIs('admin.banner.*') ? 'active' : '' }}" href="{{ route('admin.banner.danhsach') }}"><i class="fas fa-images"></i>Banner</a>
+                    </li>
                 </ul>
                 <ul class="navbar-nav mb-2 mb-lg-0">
                     <li class="nav-item dropdown">
@@ -232,6 +381,10 @@
             </div>
         </div>
     </nav>
+
+    <a class="admin-store-link" href="{{ route('frontend.home') }}" aria-label="Xem cửa hàng">
+        <i class="fas fa-store"></i>Xem cửa hàng
+    </a>
 
     <main class="container-xxl py-4">
         @if(session('success'))

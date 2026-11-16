@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Banner;
+use App\Models\DanhGia;
 use App\Models\HangSanXuat;
 use App\Models\LoaiSanPham;
 use App\Models\SanPham;
@@ -20,8 +22,9 @@ class HomeController extends Controller
             ->get();
         $hangsanxuat = HangSanXuat::all();
         $loaisanpham = LoaiSanPham::all();
+        $banners = Banner::where('trang_thai', true)->orderBy('thu_tu')->get();
 
-        return view('frontend.home', compact('sanpham', 'hangsanxuat', 'loaisanpham'));
+        return view('frontend.home', compact('sanpham', 'hangsanxuat', 'loaisanpham', 'banners'));
     }
 
     public function getSanPham(Request $request, ?string $tenloai_slug = null)
@@ -87,8 +90,13 @@ class HomeController extends Controller
             ->latest()
             ->take(4)
             ->get();
+        $reviews = DanhGia::with('User')
+            ->where('sanpham_id', $sanpham->id)
+            ->where('trangthai', 'hien_thi')
+            ->latest()
+            ->get();
 
-        return view('frontend.sanpham_chitiet', compact('sanpham', 'related'));
+        return view('frontend.sanpham_chitiet', compact('sanpham', 'related', 'reviews'));
     }
 
     public function getHinhAnh(string $path)

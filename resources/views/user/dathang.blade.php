@@ -52,6 +52,14 @@
                                 <span>{{ number_format($item['price'] * $item['qty'], 0, ',', '.') }} đ</span>
                             </div>
                         @endforeach
+                        <form method="POST" action="{{ route('user.voucher.apdung') }}" class="input-group mt-3">
+                            @csrf
+                            <input name="code" class="form-control" placeholder="Nhập mã giảm giá" value="{{ $voucher['code'] ?? '' }}">
+                            <button class="btn btn-outline-warning" type="submit">Áp dụng</button>
+                        </form>
+                        @if($voucher)
+                            <div class="d-flex justify-content-between mt-2 text-success"><span>Giảm giá ({{ $voucher['code'] }})</span><span>-{{ number_format($discount, 0, ',', '.') }} đ</span></div>
+                        @endif
                         <div class="d-flex justify-content-between mt-3 fw-bold">
                             <span>Tổng cộng</span>
                             <span class="text-danger">{{ number_format($total, 0, ',', '.') }} đ</span>

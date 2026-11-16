@@ -9,6 +9,8 @@ class TinhTrang extends Model
 {
     protected $table = 'tinhtrang';
 
+    protected $fillable = ['tinhtrang'];
+
     public function DonHang(): HasMany
     {
         return $this->hasMany(DonHang::class, 'tinhtrang_id');

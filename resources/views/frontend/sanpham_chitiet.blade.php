@@ -91,6 +91,27 @@
     </div>
 </div>
 
+<div class="border rounded-3 bg-white p-4 mb-5">
+    <h3 class="section-title">Đánh giá sản phẩm</h3>
+    @forelse($reviews as $review)
+        <div class="border-bottom py-3">
+            <div class="d-flex justify-content-between"><strong>{{ $review->User?->name }}</strong><span class="text-warning">{{ str_repeat('★', $review->sosao) }}</span></div>
+            <p class="mb-1 mt-2">{{ $review->binhluan }}</p>
+            @if($review->phanhoi_admin)<div class="small text-muted bg-light rounded p-2">Phản hồi từ Watch Shop: {{ $review->phanhoi_admin }}</div>@endif
+        </div>
+    @empty
+        <p class="text-muted">Chưa có đánh giá hiển thị.</p>
+    @endforelse
+    @auth
+        <form method="POST" action="{{ route('user.danhgia.luu', $sanpham->id) }}" class="border-top mt-3 pt-3">
+            @csrf
+            <div class="row g-2 align-items-end"><div class="col-md-3"><label class="form-label">Số sao</label><select name="sosao" class="form-select"><option value="5">5 sao</option><option value="4">4 sao</option><option value="3">3 sao</option><option value="2">2 sao</option><option value="1">1 sao</option></select></div><div class="col-md-7"><label class="form-label">Nhận xét</label><textarea name="binhluan" class="form-control" rows="2" placeholder="Chia sẻ trải nghiệm của bạn"></textarea></div><div class="col-md-2"><button class="btn btn-gold w-100" type="submit">Gửi đánh giá</button></div></div>
+        </form>
+    @else
+        <p class="small text-muted border-top mt-3 pt-3">Vui lòng đăng nhập để gửi đánh giá.</p>
+    @endauth
+</div>
+
 <hr class="my-5">
 <h3 class="section-title">Sản Phẩm Liên Quan</h3>
 <div class="row row-cols-1 row-cols-sm-2 row-cols-md-4 g-4">

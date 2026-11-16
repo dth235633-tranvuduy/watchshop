@@ -1,0 +1,8 @@
+@extends('layouts.app')
+
+@section('title', 'Đánh giá sản phẩm - Watch Shop Admin')
+
+@section('content')
+<div class="mb-4"><p class="text-muted small text-uppercase fw-bold mb-1">Chăm sóc khách hàng</p><h1 class="mb-0">Đánh giá sản phẩm</h1></div>
+<div class="vip-card"><div class="table-responsive"><table class="table table-vip mb-0"><thead><tr><th>Khách hàng</th><th>Sản phẩm</th><th>Đánh giá</th><th>Nội dung</th><th>Trạng thái & phản hồi</th><th></th></tr></thead><tbody>@forelse($reviews as $review)<tr><td>{{ $review->User?->name }}<br><small class="text-muted">{{ $review->created_at?->format('d/m/Y H:i') }}</small></td><td>{{ $review->SanPham?->tensanpham }}</td><td class="text-warning">{{ str_repeat('★', $review->sosao) }}<br><small class="text-muted">{{ $review->sosao }}/5</small></td><td style="min-width:220px">{{ $review->binhluan ?: '—' }}</td><td><form method="POST" action="{{ route('admin.danhgia.capnhat', $review) }}">@csrf @method('PATCH')<select name="trangthai" class="form-select form-select-sm mb-2"><option value="cho_duyet" @selected($review->trangthai === 'cho_duyet')>Chờ duyệt</option><option value="hien_thi" @selected($review->trangthai === 'hien_thi')>Hiển thị</option><option value="an" @selected($review->trangthai === 'an')>Ẩn</option></select><textarea name="phanhoi_admin" class="form-control form-control-sm" rows="2" placeholder="Phản hồi khách hàng">{{ $review->phanhoi_admin }}</textarea></td><td><button class="btn btn-sm btn-gold" type="submit">Lưu</button></form></td></tr>@empty<tr><td colspan="6" class="text-center text-muted py-5">Chưa có đánh giá.</td></tr>@endforelse</tbody></table></div><div class="card-body">{{ $reviews->links() }}</div></div>
+@endsection

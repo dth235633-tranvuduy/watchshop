@@ -10,11 +10,15 @@ class DonHang extends Model
 {
     protected $table = 'donhang';
 
+    protected $fillable = ['user_id', 'voucher_id', 'tinhtrang_id', 'tennguoinhan', 'dienthoaigiaohang', 'diachigiaohang', 'ghichu', 'tiengiam', 'tongtien'];
+
     protected function casts(): array
     {
         return [
             'created_at' => 'datetime',
             'updated_at' => 'datetime',
+            'tiengiam' => 'decimal:2',
+            'tongtien' => 'decimal:2',
         ];
     }
 
@@ -26,6 +30,11 @@ class DonHang extends Model
     public function TinhTrang(): BelongsTo
     {
         return $this->belongsTo(TinhTrang::class, 'tinhtrang_id');
+    }
+
+    public function Voucher(): BelongsTo
+    {
+        return $this->belongsTo(Voucher::class, 'voucher_id');
     }
 
     public function DonHang_ChiTiet(): HasMany

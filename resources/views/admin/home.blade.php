@@ -153,7 +153,7 @@
                 <div class="kpi-icon" style="background:rgba(46,125,50,.10); color:#2e7d32;"><i class="fas fa-user-group"></i></div>
                 <span class="kpi-badge" style="background:rgba(46,125,50,.12); color:#2e7d32;">Khách</span>
             </div>
-            <div class="kpi-value">{{ number_format($stats['nguoidung']) }}</div>
+            <div class="kpi-value">{{ number_format($stats['khachhang_moi']) }}</div>
             <div class="kpi-label">Khách hàng</div>
         </div>
     </div>
@@ -161,10 +161,10 @@
     <div class="col-sm-6 col-xl-3">
         <div class="kpi-card h-100">
             <div class="d-flex justify-content-between align-items-start mb-3">
-                <div class="kpi-icon" style="background:rgba(198,40,40,.10); color:#c62828;"><i class="fas fa-briefcase"></i></div>
+                <div class="kpi-icon" style="background:rgba(198,40,40,.10); color:#c62828;"><i class="fas fa-boxes-stacked"></i></div>
                 <span class="kpi-badge" style="background:rgba(198,40,40,.12); color:#c62828;">Ứng tuyển</span>
             </div>
-            <div class="kpi-value">{{ number_format($stats['ungvien']) }}</div>
+            <div class="kpi-value">{{ number_format($stats['ton_kho_thap']) }}</div>
             <div class="kpi-label">Đơn ứng tuyển</div>
         </div>
     </div>
@@ -175,7 +175,7 @@
         <div class="vip-card h-100">
             <div class="card-header d-flex justify-content-between align-items-center">
                 <span><i class="fas fa-chart-line me-2" style="color:var(--ws-gold);"></i>Doanh thu theo tháng</span>
-                <span class="badge rounded-pill" style="background:var(--ws-cream); color:#7a7a7a; font-weight:600;">{{ now()->year }}</span>
+                <div class="d-flex align-items-center gap-2"><select id="revenueRange" class="form-select form-select-sm" style="width:auto"><option value="month">Theo tháng</option><option value="day">7 ngày gần nhất</option></select><span class="badge rounded-pill" style="background:var(--ws-cream); color:#7a7a7a; font-weight:600;">{{ now()->year }}</span></div>
             </div>
             <div class="card-body p-3 p-md-4">
                 <div class="chart-wrap">
@@ -255,6 +255,20 @@
         </div>
     </div>
 </div>
+<div class="row g-4 mt-1">
+    <div class="col-lg-7">
+        <div class="vip-card h-100">
+            <div class="card-header"><i class="fas fa-fire me-2" style="color:var(--ws-gold);"></i>Sản phẩm bán chạy</div>
+            <div class="table-responsive"><table class="table table-vip mb-0"><thead><tr><th>Sản phẩm</th><th class="text-center">Đã bán</th><th class="text-end">Doanh thu</th></tr></thead><tbody>@forelse($topProducts as $item)<tr><td>{{ $item->SanPham?->tensanpham }}</td><td class="text-center"><span class="badge bg-gold-soft">{{ $item->total_quantity }}</span></td><td class="text-end">{{ number_format($item->total_revenue, 0, ',', '.') }} đ</td></tr>@empty<tr><td colspan="3" class="text-center text-muted py-4">Chưa có dữ liệu bán hàng.</td></tr>@endforelse</tbody></table></div>
+        </div>
+    </div>
+    <div class="col-lg-5">
+        <div class="vip-card h-100">
+            <div class="card-header"><i class="fas fa-chart-pie me-2" style="color:var(--ws-gold);"></i>Trạng thái đơn hàng</div>
+            <div class="table-responsive"><table class="table table-vip mb-0"><thead><tr><th>Trạng thái</th><th class="text-end">Số đơn</th></tr></thead><tbody>@forelse($orderStatuses as $status)<tr><td>{{ $status->tinhtrang }}</td><td class="text-end fw-bold">{{ $status->total }}</td></tr>@empty<tr><td colspan="2" class="text-center text-muted py-4">Chưa có đơn hàng.</td></tr>@endforelse</tbody></table></div>
+        </div>
+    </div>
+</div>
 @endsection
 
 @push('scripts')
@@ -264,8 +278,10 @@
         var canvas = document.getElementById('revenueChart');
         if (!canvas || typeof Chart === 'undefined') { return; }
 
-        var data = @json($chart);
-        var hasData = data.values.some(function (v) { return Number(v) > 0; });
+        var monthlyData = @json($chart);
+        var dailyData = @json($dailyChart);
+        var data = monthlyData;
+        var hasData = monthlyData.values.concat(dailyData.values).some(function (v) { return Number(v) > 0; });
 
         if (!hasData) {
             canvas.style.display = 'none';
@@ -279,7 +295,7 @@
         gradient.addColorStop(0, 'rgba(201,162,39,.32)');
         gradient.addColorStop(1, 'rgba(201,162,39,0)');
 
-        new Chart(canvas, {
+        var revenueChart = new Chart(canvas, {
             type: 'line',
             data: {
                 labels: data.labels,
@@ -332,6 +348,13 @@
                     }
                 }
             }
+        });
+
+        document.getElementById('revenueRange')?.addEventListener('change', function () {
+            var nextData = this.value === 'day' ? dailyData : monthlyData;
+            revenueChart.data.labels = nextData.labels;
+            revenueChart.data.datasets[0].data = nextData.values;
+            revenueChart.update();
         });
     })();
 </script>

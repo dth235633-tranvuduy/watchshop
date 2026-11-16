@@ -15,6 +15,10 @@ class ImportFromDhdaSeeder extends Seeder
         $htmlPath = storage_path('app/dhda_category.html');
 
         if (! is_file($htmlPath)) {
+            $htmlPath = storage_path('app/dhda_home.html');
+        }
+
+        if (! is_file($htmlPath)) {
             $this->command?->error('Không tìm thấy file: '.$htmlPath);
 
             return;

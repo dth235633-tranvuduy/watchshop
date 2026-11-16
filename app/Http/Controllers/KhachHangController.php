@@ -4,8 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Models\DonHang;
 use App\Models\DonHang_ChiTiet;
+use App\Models\DanhGia;
 use App\Models\SanPham;
+use App\Models\TinhTrang;
 use App\Models\User;
+use App\Models\Voucher;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -80,9 +83,49 @@ class KhachHangController extends Controller
 
         /** @var User $user */
         $user = Auth::user();
-        $total = collect($cart)->sum(fn (array $item): float => $item['price'] * $item['qty']);
+        $subtotal = collect($cart)->sum(fn (array $item): float => $item['price'] * $item['qty']);
+        $voucher = session('voucher');
+        $discount = $voucher ? (float) ($voucher['discount'] ?? 0) : 0;
+        $total = max(0, $subtotal - $discount);
 
-        return view('user.dathang', compact('cart', 'total', 'user'));
+        return view('user.dathang', compact('cart', 'subtotal', 'discount', 'total', 'voucher', 'user'));
+    }
+
+    public function postApDungVoucher(Request $request)
+    {
+        $request->validate(['code' => ['required', 'string', 'max:50']]);
+        $cart = session('cart', []);
+        $subtotal = collect($cart)->sum(fn (array $item): float => $item['price'] * $item['qty']);
+        $voucher = Voucher::where('code', strtoupper(trim($request->string('code')->toString())))->first();
+
+        if (! $voucher || ! $voucher->isUsable($subtotal)) {
+            return back()->with('error', 'Mã giảm giá không hợp lệ, đã hết hạn hoặc chưa đủ điều kiện.');
+        }
+
+        session()->put('voucher', [
+            'id' => $voucher->id,
+            'code' => $voucher->code,
+            'discount' => $voucher->discountFor($subtotal),
+        ]);
+
+        return back()->with('success', 'Đã áp dụng mã giảm giá.');
+    }
+
+    public function postDanhGia(Request $request, int $sanphamId)
+    {
+        $validated = $request->validate([
+            'sosao' => ['required', 'integer', 'between:1,5'],
+            'binhluan' => ['nullable', 'string', 'max:2000'],
+        ]);
+        DanhGia::create([
+            'sanpham_id' => $sanphamId,
+            'user_id' => Auth::id(),
+            'sosao' => $validated['sosao'],
+            'binhluan' => $validated['binhluan'] ?? null,
+            'trangthai' => 'cho_duyet',
+        ]);
+
+        return back()->with('success', 'Đánh giá đã được gửi và đang chờ duyệt.');
     }
 
     public function postDatHang(Request $request)
@@ -106,7 +149,16 @@ class KhachHangController extends Controller
 
             $donhang = new DonHang;
             $donhang->user_id = Auth::id();
-            $donhang->tinhtrang_id = 1;
+            $status = TinhTrang::query()->orderBy('id')->first()
+                ?? TinhTrang::create(['tinhtrang' => 'Chờ duyệt']);
+            $donhang->tinhtrang_id = $status->id;
+            $voucherData = session('voucher');
+            $voucher = $voucherData ? Voucher::lockForUpdate()->find($voucherData['id']) : null;
+            $subtotal = collect($cart)->sum(fn (array $item): float => $item['price'] * $item['qty']);
+            $discount = $voucher && $voucher->isUsable($subtotal) ? $voucher->discountFor($subtotal) : 0;
+            $donhang->voucher_id = $voucher?->id;
+            $donhang->tiengiam = $discount;
+            $donhang->tongtien = max(0, $subtotal - $discount);
             $donhang->tennguoinhan = $validated['tennguoinhan'];
             $donhang->dienthoaigiaohang = $validated['dienthoaigiaohang'];
             $donhang->diachigiaohang = $validated['diachigiaohang'];
@@ -136,6 +188,10 @@ class KhachHangController extends Controller
             }
 
             session()->forget('cart');
+            if ($voucher) {
+                $voucher->increment('daludung');
+            }
+            session()->forget('voucher');
             DB::commit();
 
             return redirect()->route('user.dathangthanhcong');
