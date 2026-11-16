@@ -69,6 +69,8 @@ Route::prefix('user')->name('user.')->middleware(['auth', 'activity'])->group(fu
     Route::get('/don-hang', [KhachHangController::class, 'getDonHang'])->name('donhang');
     Route::get('/dat-hang', [KhachHangController::class, 'getDatHang'])->name('dathang');
     Route::post('/dat-hang', [KhachHangController::class, 'postDatHang'])->name('dathang');
+    Route::post('/don-hang/{id}/thanh-toan', [KhachHangController::class, 'postThanhToan'])->name('donhang.thanhtoan');
+    Route::patch('/don-hang/{id}/huy', [KhachHangController::class, 'postHuyDon'])->name('donhang.huy');
     Route::post('/ap-dung-voucher', [KhachHangController::class, 'postApDungVoucher'])->name('voucher.apdung');
     Route::post('/danh-gia/{sanphamId}', [KhachHangController::class, 'postDanhGia'])->name('danhgia.luu');
     Route::get('/dat-hang-thanh-cong', [KhachHangController::class, 'getDatHangThanhCong'])->name('dathangthanhcong');

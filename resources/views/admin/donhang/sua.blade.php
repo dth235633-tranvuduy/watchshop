@@ -43,7 +43,7 @@
 
                     <div class="mb-3">
                         <label for="tinhtrang_id" class="form-label">Tình trạng <span class="text-danger">*</span></label>
-                        <select name="tinhtrang_id" id="tinhtrang_id" class="form-select @error('tinhtrang_id') is-invalid @enderror" required>
+                        <select name="tinhtrang_id" id="tinhtrang_id" class="form-select @error('tinhtrang_id') is-invalid @enderror" disabled>
                             <option value="">-- Chọn tình trạng --</option>
                             @foreach($tinhtrang as $tt)
                                 <option value="{{ $tt->id }}" {{ (old('tinhtrang_id') ?? $donhang->tinhtrang_id) == $tt->id ? 'selected' : '' }}>{{ $tt->tinhtrang }}</option>

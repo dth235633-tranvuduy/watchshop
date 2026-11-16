@@ -178,6 +178,7 @@
         /* ---------- Utility ---------- */
         .text-gold { color: var(--ws-gold) !important; }
         .bg-gold-soft { background: rgba(201,162,39,.10); color: var(--ws-gold); }
+        .status-update-form { display: none !important; }
 
         /* ---------- Desktop sidebar ---------- */
         @media (min-width: 992px) {

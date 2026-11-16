@@ -31,7 +31,9 @@ class KhachHangController extends Controller
             return redirect()->route('login')->with('error', 'Vui lòng đăng nhập.');
         }
 
-        $user->load('DonHang');
+        $user->load(['DonHang' => function ($query): void {
+            $query->with(['TinhTrang', 'DonHang_ChiTiet.SanPham'])->latest();
+        }]);
 
         return view('user.home', compact('user'));
     }
@@ -98,8 +100,11 @@ class KhachHangController extends Controller
         $subtotal = collect($cart)->sum(fn (array $item): float => $item['price'] * $item['qty']);
         $voucher = Voucher::where('code', strtoupper(trim($request->string('code')->toString())))->first();
 
-        if (! $voucher || ! $voucher->isUsable($subtotal)) {
-            return back()->with('error', 'Mã giảm giá không hợp lệ, đã hết hạn hoặc chưa đủ điều kiện.');
+        if (! $voucher) {
+            return back()->with('error', 'Không tìm thấy mã giảm giá này.');
+        }
+        if (! $voucher->isUsable($subtotal)) {
+            return back()->with('error', $voucher->unavailableReason($subtotal) ?? 'Mã giảm giá chưa thể áp dụng.');
         }
 
         session()->put('voucher', [
@@ -149,8 +154,7 @@ class KhachHangController extends Controller
 
             $donhang = new DonHang;
             $donhang->user_id = Auth::id();
-            $status = TinhTrang::query()->orderBy('id')->first()
-                ?? TinhTrang::create(['tinhtrang' => 'Chờ duyệt']);
+            $status = TinhTrang::firstOrCreate(['tinhtrang' => 'Chưa thanh toán']);
             $donhang->tinhtrang_id = $status->id;
             $voucherData = session('voucher');
             $voucher = $voucherData ? Voucher::lockForUpdate()->find($voucherData['id']) : null;
@@ -188,9 +192,6 @@ class KhachHangController extends Controller
             }
 
             session()->forget('cart');
-            if ($voucher) {
-                $voucher->increment('daludung');
-            }
             session()->forget('voucher');
             DB::commit();
 
@@ -207,6 +208,70 @@ class KhachHangController extends Controller
     public function getDatHangThanhCong()
     {
         return view('user.dathangthanhcong');
+    }
+
+    public function postThanhToan(int $id)
+    {
+        try {
+            DB::transaction(function () use ($id): void {
+                $order = DonHang::where('user_id', Auth::id())
+                    ->with('TinhTrang')
+                    ->lockForUpdate()
+                    ->findOrFail($id);
+
+                if ($order->TinhTrang?->tinhtrang === 'Đã hủy') {
+                    abort(422, 'Đơn hàng đã hủy không thể thanh toán.');
+                }
+
+                if ($order->TinhTrang?->tinhtrang === 'Đã thanh toán') {
+                    return;
+                }
+
+                if ($order->voucher_id) {
+                    $voucher = Voucher::lockForUpdate()->find($order->voucher_id);
+                    $subtotal = $order->DonHang_ChiTiet()->sum(DB::raw('soluongban * dongiaban'));
+
+                    if (! $voucher || ! $voucher->isUsable((float) $subtotal)) {
+                        abort(422, 'Mã giảm giá của đơn hàng không còn đủ điều kiện thanh toán.');
+                    }
+
+                    $voucher->increment('daludung');
+                }
+
+                $paidStatus = TinhTrang::firstOrCreate(['tinhtrang' => 'Đã thanh toán']);
+                $order->update(['tinhtrang_id' => $paidStatus->id]);
+            });
+        } catch (Throwable $exception) {
+            if ($exception instanceof \Symfony\Component\HttpKernel\Exception\HttpExceptionInterface) {
+                return back()->with('error', $exception->getMessage());
+            }
+
+            report($exception);
+
+            return back()->with('error', 'Thanh toán không thành công. Vui lòng thử lại.');
+        }
+
+        return back()->with('success', 'Thanh toán thành công.');
+    }
+
+    public function postHuyDon(int $id)
+    {
+        DB::transaction(function () use ($id): void {
+            $order = DonHang::where('user_id', Auth::id())->lockForUpdate()->findOrFail($id);
+            if ($order->TinhTrang?->tinhtrang === 'Đã thanh toán') {
+                abort(422, 'Đơn hàng đã thanh toán không thể hủy.');
+            }
+            if ($order->TinhTrang?->tinhtrang === 'Đã hủy') {
+                return;
+            }
+            $cancelledStatus = TinhTrang::firstOrCreate(['tinhtrang' => 'Đã hủy']);
+            foreach ($order->DonHang_ChiTiet as $detail) {
+                SanPham::whereKey($detail->sanpham_id)->lockForUpdate()->increment('soluong', $detail->soluongban);
+            }
+            $order->update(['tinhtrang_id' => $cancelledStatus->id]);
+        });
+
+        return back()->with('success', 'Đã hủy đơn hàng và hoàn lại tồn kho.');
     }
 
     public function postHoSo(Request $request)

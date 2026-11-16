@@ -17,7 +17,7 @@
                     <th>Mã đơn</th>
                     <th class="text-center" style="width:150px;">Ngày đặt</th>
                     <th class="text-end" style="width:150px;">Tổng tiền</th>
-                    <th class="text-center" style="width:140px;">Tình trạng</th>
+                    <th class="text-center" style="width:190px;">Tình trạng</th>
                     <th class="text-center" style="width:110px;">Chi tiết</th>
                 </tr>
             </thead>
@@ -25,14 +25,25 @@
                 @foreach($user->DonHang as $dh)
                     @php
                         $tong = $dh->DonHang_ChiTiet->sum(fn ($ct) => $ct->soluongban * $ct->dongiaban);
-                        $statusClass = optional($dh->TinhTrang)->tinhtrang === 'Đã giao' ? 'success' : (optional($dh->TinhTrang)->tinhtrang === 'Đang giao' ? 'warning' : 'secondary');
+                        $statusName = optional($dh->TinhTrang)->tinhtrang;
+                        $statusClass = $statusName === 'Đã thanh toán' ? 'success' : ($statusName === 'Đã hủy' ? 'danger' : 'warning');
                     @endphp
                     <tr>
                         <td class="text-center">{{ $loop->iteration }}</td>
                         <td><strong>#{{ $dh->id }}</strong></td>
                         <td class="text-center">{{ optional($dh->created_at)->format('d/m/Y H:i') }}</td>
                         <td class="text-end fw-semibold">{{ number_format($tong, 0, ',', '.') }} đ</td>
-                        <td class="text-center"><span class="badge bg-{{ $statusClass }}">{{ optional($dh->TinhTrang)->tinhtrang }}</span></td>
+                        <td class="text-center">
+                            <div class="d-flex flex-column align-items-center gap-2">
+                                <span class="badge bg-{{ $statusClass }}">{{ optional($dh->TinhTrang)->tinhtrang }}</span>
+                                @if(optional($dh->TinhTrang)->tinhtrang === 'Chưa thanh toán')
+                                    <div class="d-flex flex-wrap justify-content-center gap-2">
+                                        <form method="POST" action="{{ route('user.donhang.thanhtoan', $dh->id) }}">@csrf<button class="btn btn-sm btn-success" type="submit"><i class="fas fa-credit-card me-1"></i>Thanh toán</button></form>
+                                        <form method="POST" action="{{ route('user.donhang.huy', $dh->id) }}" onsubmit="return confirm('Bạn có chắc muốn hủy đơn hàng này?')">@csrf @method('PATCH')<button class="btn btn-sm btn-outline-danger" type="submit"><i class="fas fa-times me-1"></i>Hủy đơn</button></form>
+                                    </div>
+                                @endif
+                            </div>
+                        </td>
                         <td class="text-center">
                             <button class="btn btn-outline-gold btn-sm" data-bs-toggle="collapse" data-bs-target="#chiTiet{{ $dh->id }}"><i class="fas fa-eye"></i></button>
                         </td>

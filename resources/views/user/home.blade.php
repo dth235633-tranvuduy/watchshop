@@ -67,4 +67,33 @@
         </div>
     </div>
 </div>
+
+<div class="card border-0 shadow-sm mt-4">
+    <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5 class="mb-0"><i class="fas fa-receipt me-2" style="color:var(--ws-gold);"></i>Đơn hàng đã đặt</h5>
+            <a href="{{ route('user.donhang') }}" class="btn btn-sm btn-outline-dark">Xem tất cả</a>
+        </div>
+
+        @forelse($user->DonHang->take(5) as $dh)
+            @php
+                $statusName = optional($dh->TinhTrang)->tinhtrang;
+                $statusClass = $statusName === 'Đã thanh toán' ? 'success' : ($statusName === 'Đã hủy' ? 'danger' : 'warning');
+                $orderTotal = $dh->tongtien ?? $dh->DonHang_ChiTiet->sum(fn ($ct) => $ct->soluongban * $ct->dongiaban);
+            @endphp
+            <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 border-top py-3">
+                <div>
+                    <a href="{{ route('user.donhang') }}" class="fw-semibold text-decoration-none">Đơn #{{ $dh->id }}</a>
+                    <div class="text-muted small">{{ optional($dh->created_at)->format('d/m/Y H:i') }}</div>
+                </div>
+                <div class="text-end">
+                    <div class="fw-semibold">{{ number_format((float) $orderTotal, 0, ',', '.') }} đ</div>
+                    <span class="badge bg-{{ $statusClass }}">{{ $statusName }}</span>
+                </div>
+            </div>
+        @empty
+            <p class="text-muted mb-0">Bạn chưa có đơn hàng nào.</p>
+        @endforelse
+    </div>
+</div>
 @endsection
