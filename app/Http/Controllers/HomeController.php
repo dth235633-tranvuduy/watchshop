@@ -24,7 +24,7 @@ class HomeController extends Controller
             ->get();
         $hangsanxuat = HangSanXuat::all();
         $loaisanpham = LoaiSanPham::all();
-        $banners = Banner::where('trang_thai', true)->orderBy('thu_tu')->get();
+        $banners = Banner::where('trang_thai', true)->orderBy('thu_tu')->orderBy('id')->get();
 
         return view('frontend.home', compact('sanpham', 'hangsanxuat', 'loaisanpham', 'banners'));
     }

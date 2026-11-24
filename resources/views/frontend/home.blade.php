@@ -26,54 +26,34 @@
 
 @section('content')
 {{-- Hero Slider --}}
+{{-- Banner trang chủ: toàn bộ slide lấy từ trang quản trị Banner, không còn slide cứng --}}
+@if($banners->isNotEmpty())
 <div id="heroCarousel" class="carousel slide hero-slider mb-5" data-bs-ride="carousel">
-    @if($banners->isNotEmpty())
+    @if($banners->count() > 1)
         <div class="carousel-indicators">
             @foreach($banners as $index => $banner)<button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="{{ $index }}" class="{{ $index === 0 ? 'active' : '' }}"></button>@endforeach
         </div>
     @endif
     <div class="carousel-inner">
-        @if($banners->isNotEmpty())
-            @foreach($banners as $index => $banner)
-                @php $bannerImage = str_starts_with($banner->hinh_anh, 'http') ? $banner->hinh_anh : route('frontend.hinhanh', ['path' => $banner->hinh_anh]); @endphp
-                <div class="carousel-item {{ $index === 0 ? 'active' : '' }}">
-                    <img src="{{ $bannerImage }}" class="d-block w-100" alt="{{ $banner->tieu_de }}">
-                    <div class="carousel-caption"><span class="eyebrow">Watch Shop</span><h2>{{ $banner->tieu_de }}</h2><p>{{ $banner->mo_ta }}</p>@if($banner->duong_dan)<a href="{{ $banner->duong_dan }}" class="btn btn-gold btn-lg px-4">Khám phá ngay <i class="fas fa-arrow-right ms-1"></i></a>@endif</div>
+        @foreach($banners as $index => $banner)
+            @php $bannerImage = str_starts_with($banner->hinh_anh, 'http') ? $banner->hinh_anh : route('frontend.hinhanh', ['path' => $banner->hinh_anh]); @endphp
+            <div class="carousel-item {{ $index === 0 ? 'active' : '' }}">
+                <img src="{{ $bannerImage }}" class="d-block w-100" alt="{{ $banner->tieu_de }}">
+                <div class="carousel-caption">
+                    <span class="eyebrow">{{ $banner->tieu_de_phu ?: 'Watch Shop' }}</span>
+                    <h2>{{ $banner->tieu_de }}</h2>
+                    @if($banner->mo_ta)<p>{{ $banner->mo_ta }}</p>@endif
+                    @if($banner->duong_dan)<a href="{{ $banner->duong_dan }}" class="btn btn-gold btn-lg px-4">Mua ngay <i class="fas fa-arrow-right ms-1"></i></a>@endif
                 </div>
-            @endforeach
-        @else
-        <div class="carousel-item active">
-            <img src="https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=1600&h=600&fit=crop" class="d-block w-100" alt="Đồng hồ nam">
-            <div class="carousel-caption">
-                <span class="eyebrow">Bộ sưu tập 2025</span>
-                <h2>Đồng Hồ Nam<br>Sang Trọng & Đẳng Cấp</h2>
-                <p>Giảm đến 30% cho dòng sản phẩm mới</p>
-                <a href="{{ route('frontend.sanpham') }}" class="btn btn-gold btn-lg px-4">Mua ngay <i class="fas fa-arrow-right ms-1"></i></a>
             </div>
-        </div>
-        <div class="carousel-item">
-            <img src="https://images.unsplash.com/photo-1579586337278-3befd40fd17a?w=1600&h=600&fit=crop" class="d-block w-100" alt="Đồng hồ nữ">
-            <div class="carousel-caption">
-                <span class="eyebrow">Tinh tế & Quyến rũ</span>
-                <h2>Đồng Hồ Nữ<br>Duyên Dáng Mỗi Khoảnh Khắc</h2>
-                <p>Sự tinh tế trong từng chi tiết</p>
-                <a href="{{ route('frontend.sanpham') }}" class="btn btn-gold btn-lg px-4">Mua ngay <i class="fas fa-arrow-right ms-1"></i></a>
-            </div>
-        </div>
-        <div class="carousel-item">
-            <img src="https://images.unsplash.com/photo-1548135170-77b9e51226a9?w=1600&h=600&fit=crop" class="d-block w-100" alt="Đồng hồ thể thao">
-            <div class="carousel-caption">
-                <span class="eyebrow">Chinh phục mọi thách thức</span>
-                <h2>Đồng Hồ Thể Thao<br>Bền Bỉ & Mạnh Mẽ</h2>
-                <p>Đồng hành cùng mọi hành trình</p>
-                <a href="{{ route('frontend.sanpham') }}" class="btn btn-gold btn-lg px-4">Mua ngay <i class="fas fa-arrow-right ms-1"></i></a>
-            </div>
-        </div>
-        @endif
+        @endforeach
     </div>
-    <button class="carousel-control-prev" type="button" data-bs-target="#heroCarousel" data-bs-slide="prev"><span class="carousel-control-prev-icon"></span></button>
-    <button class="carousel-control-next" type="button" data-bs-target="#heroCarousel" data-bs-slide="next"><span class="carousel-control-next-icon"></span></button>
+    @if($banners->count() > 1)
+        <button class="carousel-control-prev" type="button" data-bs-target="#heroCarousel" data-bs-slide="prev"><span class="carousel-control-prev-icon"></span></button>
+        <button class="carousel-control-next" type="button" data-bs-target="#heroCarousel" data-bs-slide="next"><span class="carousel-control-next-icon"></span></button>
+    @endif
 </div>
+@endif
 
 {{-- Promo banner --}}
 <div class="container mb-5">

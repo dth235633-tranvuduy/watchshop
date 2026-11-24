@@ -65,6 +65,7 @@ class AdminBannerController extends Controller
     {
         $rules = [
             'tieu_de' => ['required', 'string', 'max:255'],
+            'tieu_de_phu' => ['nullable', 'string', 'max:255'],
             'mo_ta' => ['nullable', 'string', 'max:1000'],
             'duong_dan' => ['nullable', 'string', 'max:500'],
             'thu_tu' => ['nullable', 'integer', 'min:0'],

@@ -36,6 +36,9 @@
                                  style="width:150px;height:64px;object-fit:cover;">
                         </td>
                         <td>
+                            @if($banner->tieu_de_phu)
+                                <small class="text-uppercase fw-bold" style="color:var(--ws-gold, #b8860b);">{{ $banner->tieu_de_phu }}</small><br>
+                            @endif
                             <strong>{{ $banner->tieu_de }}</strong>
                             @if($banner->mo_ta)
                                 <br><small class="text-muted">{{ $banner->mo_ta }}</small>

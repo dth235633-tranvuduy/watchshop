@@ -29,6 +29,12 @@
                         @error('tieu_de')<div class="invalid-feedback">{{ $message }}</div>@enderror
                     </div>
                     <div class="mb-3">
+                        <label class="form-label fw-semibold">Dòng chữ nhỏ trên tiêu đề</label>
+                        <input name="tieu_de_phu" class="form-control @error('tieu_de_phu') is-invalid @enderror"
+                               value="{{ old('tieu_de_phu', $banner->tieu_de_phu) }}" placeholder="Ví dụ: Bộ sưu tập 2025">
+                        @error('tieu_de_phu')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                    </div>
+                    <div class="mb-3">
                         <label class="form-label fw-semibold">Đường dẫn khi bấm</label>
                         <input name="duong_dan" class="form-control @error('duong_dan') is-invalid @enderror"
                                value="{{ old('duong_dan', $banner->duong_dan) }}" placeholder="/san-pham">

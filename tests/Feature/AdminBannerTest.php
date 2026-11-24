@@ -27,7 +27,7 @@ class AdminBannerTest extends TestCase
             'hinh_anh' => UploadedFile::fake()->image('banner.jpg', 1600, 600),
         ])->assertRedirect(route('admin.banner.danhsach'));
 
-        $banner = Banner::firstOrFail();
+        $banner = Banner::where('tieu_de', 'Bộ sưu tập mới')->firstOrFail();
         $this->assertTrue(Storage::disk('private')->exists($banner->hinh_anh));
 
         $this->actingAs($admin)->patch("/admin/banner/{$banner->id}/trang-thai")
