@@ -81,9 +81,10 @@
                 <h5 class="mb-0"><i class="fas fa-history me-2"></i>Lịch sử trạng thái</h5>
             </div>
             <div class="card-body">
-                @if($donhang->LichSu->isNotEmpty())
+                @php $lichSuDon = $donhang->lichSuTrangThai(); @endphp
+                @if($lichSuDon->isNotEmpty())
                     <ul class="list-group list-group-flush">
-                        @foreach($donhang->LichSu->sortByDesc('id') as $ls)
+                        @foreach($lichSuDon->sortByDesc('id') as $ls)
                             <li class="list-group-item px-0">
                                 <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
                                     <span class="badge bg-primary">{{ $ls->ten_trang_thai }}</span>
@@ -99,7 +100,11 @@
                         @endforeach
                     </ul>
                 @else
-                    <p class="text-muted mb-0">Đơn hàng này được tạo trước khi có tính năng theo dõi trạng thái nên chưa có mốc lịch sử nào. Các thay đổi trạng thái từ bây giờ sẽ được ghi lại tại đây.</p>
+                    @if(\App\Models\DonHang::coBangLichSu())
+                        <p class="text-muted mb-0">Đơn hàng này được tạo trước khi có tính năng theo dõi trạng thái nên chưa có mốc lịch sử nào. Các thay đổi trạng thái từ bây giờ sẽ được ghi lại tại đây.</p>
+                    @else
+                        <p class="text-muted mb-0">Bảng lịch sử trạng thái chưa được tạo. Hãy chạy lệnh <code>php artisan migrate</code> để bật tính năng theo dõi trạng thái.</p>
+                    @endif
                 @endif
             </div>
         </div>

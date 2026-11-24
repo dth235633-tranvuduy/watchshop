@@ -44,7 +44,11 @@ class DonHangController extends Controller
 
     public function getSua(int $id)
     {
-        $donhang = DonHang::with(['User', 'TinhTrang', 'DonHang_ChiTiet.SanPham', 'LichSu.User'])->findOrFail($id);
+        $relations = ['User', 'TinhTrang', 'DonHang_ChiTiet.SanPham'];
+        if (DonHang::coBangLichSu()) {
+            $relations[] = 'LichSu.User';
+        }
+        $donhang = DonHang::with($relations)->findOrFail($id);
         $this->ensureDefaultStatuses();
         $tinhtrang = TinhTrang::all();
 

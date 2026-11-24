@@ -68,7 +68,11 @@ class KhachHangController extends Controller
         }
 
         $user->load(['DonHang' => function ($query): void {
-            $query->with(['TinhTrang', 'DonHang_ChiTiet.SanPham', 'LichSu'])
+            $relations = ['TinhTrang', 'DonHang_ChiTiet.SanPham'];
+            if (DonHang::coBangLichSu()) {
+                $relations[] = 'LichSu';
+            }
+            $query->with($relations)
                 ->latest();
         }]);
 

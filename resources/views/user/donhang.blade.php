@@ -124,13 +124,14 @@
                                     </div>
                                     @php
                                         $mocThoiGian = collect();
-                                        if ($dh->LichSu->isEmpty()) {
+                                        $lichSuDon = $dh->lichSuTrangThai();
+                                        if ($lichSuDon->isEmpty()) {
                                             $mocThoiGian->push(['ten' => 'Đơn hàng được tạo', 'luc' => $dh->created_at, 'ghichu' => null]);
                                             if ($statusName && $dh->updated_at && $dh->updated_at->gt($dh->created_at)) {
                                                 $mocThoiGian->push(['ten' => $statusName, 'luc' => $dh->updated_at, 'ghichu' => null]);
                                             }
                                         } else {
-                                            foreach ($dh->LichSu as $ls) {
+                                            foreach ($lichSuDon as $ls) {
                                                 $mocThoiGian->push(['ten' => $ls->ten_trang_thai, 'luc' => $ls->created_at, 'ghichu' => $ls->ghichu]);
                                             }
                                         }

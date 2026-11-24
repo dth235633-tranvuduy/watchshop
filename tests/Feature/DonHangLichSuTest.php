@@ -9,6 +9,7 @@ use App\Models\SanPham;
 use App\Models\TinhTrang;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Schema;
 use Tests\TestCase;
 
 class DonHangLichSuTest extends TestCase
@@ -112,6 +113,30 @@ class DonHangLichSuTest extends TestCase
             'user_id' => $user->id,
             'ghichu' => 'Khách hàng hủy đơn. Lý do: Đặt nhầm sản phẩm',
         ]);
+    }
+
+    public function test_order_pages_still_work_before_the_history_table_exists(): void
+    {
+        $admin = User::factory()->create(['role' => 'admin', 'is_active' => true]);
+        $user = User::factory()->create(['is_active' => true]);
+        $product = $this->createProduct();
+        $order = $this->placeOrder($user, $product);
+
+        Schema::drop('donhang_lichsu');
+
+        $this->assertFalse(DonHang::coBangLichSu());
+        $this->assertNull($order->ghiLichSu($user->id));
+        $this->assertTrue($order->lichSuTrangThai()->isEmpty());
+
+        $this->actingAs($user)
+            ->get(route('user.donhang'))
+            ->assertOk()
+            ->assertSee('Theo dõi trạng thái đơn hàng');
+
+        $this->actingAs($admin)
+            ->get(route('admin.donhang.sua', $order->id))
+            ->assertOk()
+            ->assertSee('php artisan migrate');
     }
 
     public function test_customer_order_page_shows_status_timeline(): void

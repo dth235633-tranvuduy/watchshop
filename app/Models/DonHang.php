@@ -5,6 +5,8 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Schema;
 
 class DonHang extends Model
 {
@@ -50,10 +52,36 @@ class DonHang extends Model
     }
 
     /**
-     * Ghi lại một mốc lịch sử cho trạng thái hiện tại của đơn hàng.
+     * Bảng lịch sử chỉ tồn tại sau khi chạy migration tạo bảng donhang_lichsu.
+     * Kiểm tra này giúp web không lỗi khi code mới được deploy trước migration.
      */
-    public function ghiLichSu(?int $userId = null, ?string $ghiChu = null): DonHangLichSu
+    public static function coBangLichSu(): bool
     {
+        return Schema::hasTable('donhang_lichsu');
+    }
+
+    /**
+     * Lịch sử trạng thái của đơn, hoặc danh sách rỗng khi chưa có bảng lịch sử.
+     */
+    public function lichSuTrangThai(): Collection
+    {
+        if (! self::coBangLichSu()) {
+            return collect();
+        }
+
+        return $this->LichSu;
+    }
+
+    /**
+     * Ghi lại một mốc lịch sử cho trạng thái hiện tại của đơn hàng.
+     * Trả về null (và không ghi gì) khi bảng lịch sử chưa được tạo.
+     */
+    public function ghiLichSu(?int $userId = null, ?string $ghiChu = null): ?DonHangLichSu
+    {
+        if (! self::coBangLichSu()) {
+            return null;
+        }
+
         $tenTrangThai = $this->tinhtrang_id
             ? TinhTrang::whereKey($this->tinhtrang_id)->value('tinhtrang')
             : null;
