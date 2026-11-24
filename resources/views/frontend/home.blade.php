@@ -17,6 +17,31 @@
     .service-card i { color: var(--ws-gold); }
     .product-actions { opacity: 0; transform: translateY(6px); transition: opacity .2s, transform .2s; }
     .product-card:hover .product-actions { opacity: 1; transform: translateY(0); }
+    /* Dải cam kết: chữ gõ, huy hiệu xoay, chữ chạy ngang */
+    .trust-band-head { background: linear-gradient(120deg, #0c0c0c 0%, #2b2413 100%); clip-path: polygon(0 0, 100% 0, 100% 82%, 0 100%); padding: 54px 0 96px; text-align: center; }
+    .trust-eyebrow { color: var(--ws-gold-light); letter-spacing: 4px; font-size: .78rem; font-weight: 700; text-transform: uppercase; }
+    .trust-type { color: #fff; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; font-size: clamp(1.25rem, 3.4vw, 2.3rem); margin: 12px 0 0; min-height: 1.4em; }
+    .type-cursor { color: var(--ws-gold); font-weight: 300; animation: trust-blink 1s steps(1) infinite; }
+    @keyframes trust-blink { 50% { opacity: 0; } }
+    .trust-items { margin-top: -64px; position: relative; z-index: 2; }
+    .trust-item { text-align: center; padding: 0 12px; opacity: 0; transform: translateY(28px); transition: opacity .7s ease, transform .7s ease; }
+    .trust-item.in-view { opacity: 1; transform: none; }
+    .trust-medal { position: relative; width: 128px; height: 128px; margin: 0 auto 18px; border-radius: 50%; background: #101010; color: var(--ws-gold); display: flex; align-items: center; justify-content: center; font-size: 2.6rem; box-shadow: 0 14px 30px rgba(0,0,0,.25); }
+    .trust-medal.gold { background: linear-gradient(140deg, #eecf7a, #b8860b); color: #191204; font-family: 'Playfair Display', serif; font-weight: 800; font-size: 2.1rem; }
+    .trust-ring { position: absolute; inset: -9px; border-radius: 50%; background: conic-gradient(from 0deg, transparent 0 42%, var(--ws-gold) 50%, transparent 58% 100%); -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 3px), #000 calc(100% - 3px)); mask: radial-gradient(farthest-side, transparent calc(100% - 3px), #000 calc(100% - 3px)); animation: trust-spin 12s linear infinite; }
+    @keyframes trust-spin { to { transform: rotate(360deg); } }
+    .trust-item h4 { font-weight: 800; text-transform: uppercase; font-size: 1.05rem; margin-bottom: 2px; }
+    .trust-item p { text-transform: uppercase; color: #555; letter-spacing: .5px; margin: 0; }
+    .trust-marquee { overflow: hidden; border-top: 1px solid var(--ws-line); border-bottom: 1px solid var(--ws-line); background: #fff; padding: 12px 0; margin-top: 42px; }
+    .trust-marquee-track { display: flex; width: max-content; animation: trust-marquee 28s linear infinite; }
+    .trust-marquee:hover .trust-marquee-track { animation-play-state: paused; }
+    .trust-marquee-track .mq-item { font-weight: 700; letter-spacing: 2px; text-transform: uppercase; white-space: nowrap; color: #222; margin-right: 1.6rem; }
+    .trust-marquee-track .sep { color: var(--ws-gold); margin-right: 1.6rem; }
+    @keyframes trust-marquee { to { transform: translateX(-50%); } }
+    @media (prefers-reduced-motion: reduce) {
+        .trust-ring, .type-cursor, .trust-marquee-track { animation: none !important; }
+        .trust-item { opacity: 1; transform: none; transition: none; }
+    }
     @media (max-width: 767px) {
         .hero-slider, .hero-slider .carousel-item, .hero-slider .carousel-item img { height: 420px; }
         .hero-slider .carousel-caption h2 { font-size: 2rem; }
@@ -54,6 +79,44 @@
     @endif
 </div>
 @endif
+
+{{-- Dải cam kết: chữ gõ typewriter, huy hiệu xoay, chữ chạy ngang --}}
+<section class="mb-5">
+    <div class="trust-band-head">
+        <div class="container">
+            <div class="trust-eyebrow">Watch Shop — Cam kết vàng</div>
+            <h2 class="trust-type"><span id="typewriter"></span><span class="type-cursor">|</span></h2>
+        </div>
+    </div>
+    <div class="container trust-items">
+        <div class="row g-4 justify-content-center">
+            <div class="col-md-4 trust-item">
+                <div class="trust-medal"><span class="trust-ring"></span><i class="fas fa-shield-halved"></i></div>
+                <h4>Bảo hành chính hãng</h4>
+                <p>Lên đến 5 năm toàn quốc</p>
+            </div>
+            <div class="col-md-4 trust-item" style="transition-delay:.15s">
+                <div class="trust-medal gold"><span class="trust-ring"></span>WS</div>
+                <h4>Thương hiệu uy tín</h4>
+                <p>Được khách hàng tin chọn</p>
+            </div>
+            <div class="col-md-4 trust-item" style="transition-delay:.3s">
+                <div class="trust-medal"><span class="trust-ring"></span><i class="fas fa-hand-holding-dollar"></i></div>
+                <h4>Đền 20 lần nếu bán</h4>
+                <p>Hàng fake</p>
+            </div>
+        </div>
+    </div>
+    <div class="trust-marquee" aria-hidden="true">
+        <div class="trust-marquee-track">
+            @for($lan = 0; $lan < 2; $lan++)
+                @foreach(['Hàng chính hãng 100%', 'Bảo hành 5 năm', 'Đền 20 lần nếu bán hàng fake', 'Miễn phí vận chuyển đơn từ 1 triệu', 'Đổi trả trong 7 ngày'] as $camKet)
+                    <span class="mq-item">{{ $camKet }}</span><span class="sep">✦</span>
+                @endforeach
+            @endfor
+        </div>
+    </div>
+</section>
 
 {{-- Promo banner --}}
 <div class="container mb-5">
@@ -161,3 +224,50 @@
     </div>
 </section>
 @endsection
+
+@push('scripts')
+<script>
+(function () {
+    var el = document.getElementById('typewriter');
+    if (el) {
+        var phrases = ['Hàng chính hãng 100%', 'Bảo hành chính hãng 5 năm', 'Đền 20 lần nếu bán hàng fake', 'Miễn phí vận chuyển đơn từ 1 triệu'];
+        var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        if (phrases.length > 0 && !reduceMotion) {
+            var phraseIndex = 0, charIndex = 0, deleting = false;
+            (function tick() {
+                var current = phrases[phraseIndex];
+                el.textContent = current.substring(0, charIndex);
+                var delay = deleting ? 38 : 78;
+                if (!deleting && charIndex === current.length) {
+                    delay = 2100;
+                    deleting = true;
+                } else if (deleting && charIndex === 0) {
+                    deleting = false;
+                    phraseIndex = (phraseIndex + 1) % phrases.length;
+                    delay = 350;
+                }
+                charIndex += deleting ? -1 : 1;
+                setTimeout(tick, delay);
+            })();
+        } else if (phrases.length > 0) {
+            el.textContent = phrases[0];
+        }
+    }
+
+    var items = document.querySelectorAll('.trust-item');
+    if ('IntersectionObserver' in window) {
+        var observer = new IntersectionObserver(function (entries) {
+            entries.forEach(function (entry) {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('in-view');
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.25 });
+        items.forEach(function (item) { observer.observe(item); });
+    } else {
+        items.forEach(function (item) { item.classList.add('in-view'); });
+    }
+})();
+</script>
+@endpush
