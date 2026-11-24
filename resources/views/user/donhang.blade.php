@@ -142,7 +142,7 @@
                                                                             @endfor
                                                                         </span>
                                                                         <span class="small text-muted">
-                                                                            · {{ $dg->trangthai === 'hien_thi' ? 'Đánh giá đã hiển thị' : ($dg->trangthai === 'an' ? 'Đánh giá đã bị ẩn' : 'Đánh giá đang chờ duyệt') }}
+                                                                            · {{ $dg->trangthai === 'an' ? 'Đánh giá đã bị quản trị viên ẩn' : 'Đánh giá đang hiển thị trên trang sản phẩm' }}
                                                                         </span>
                                                                     @else
                                                                         <button type="button" class="btn btn-sm btn-outline-gold"
@@ -307,7 +307,7 @@
                                 <textarea id="binhluan{{ $dh->id }}_{{ $ct->sanpham_id }}" name="binhluan" rows="3"
                                           class="form-control" maxlength="2000"
                                           placeholder="Chia sẻ cảm nhận về sản phẩm (không bắt buộc)..."></textarea>
-                                <p class="small text-muted mt-2 mb-0">Đánh giá sẽ được gửi cho quản trị viên duyệt trước khi hiển thị trên trang sản phẩm.</p>
+                                <p class="small text-muted mt-2 mb-0">Đánh giá của bạn sẽ hiển thị ngay trên trang sản phẩm để khách hàng khác cùng xem.</p>
                             </div>
                             <div class="modal-footer">
                                 <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Để sau</button>

@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\DanhGia;
 use App\Models\DonHang;
 use App\Models\DonHang_ChiTiet;
 use App\Models\HangSanXuat;
@@ -94,14 +95,48 @@ class DonHangThaoTacTest extends TestCase
             'sanpham_id' => $product->id,
             'user_id' => $user->id,
             'sosao' => 5,
-            'trangthai' => 'cho_duyet',
+            'trangthai' => 'hien_thi',
         ]);
 
         $this->actingAs($user)
             ->get(route('user.donhang'))
             ->assertOk()
-            ->assertSee('Đánh giá đang chờ duyệt')
+            ->assertSee('Đánh giá đang hiển thị trên trang sản phẩm')
             ->assertDontSee('Đánh giá sản phẩm');
+    }
+
+    public function test_admin_can_hide_and_show_a_review_immediately(): void
+    {
+        $admin = User::factory()->create(['role' => 'admin', 'is_active' => true]);
+        $user = User::factory()->create(['is_active' => true]);
+        $product = $this->createProduct();
+        $review = DanhGia::create([
+            'sanpham_id' => $product->id,
+            'user_id' => $user->id,
+            'sosao' => 4,
+            'binhluan' => 'Sản phẩm tốt.',
+            'trangthai' => 'hien_thi',
+        ]);
+
+        $this->actingAs($admin)
+            ->get(route('admin.danhgia.danhsach'))
+            ->assertOk()
+            ->assertSee('Đang hiển thị');
+
+        $this->actingAs($admin)
+            ->patch(route('admin.danhgia.capnhat', $review), ['trangthai' => 'an'])
+            ->assertRedirect()
+            ->assertSessionHas('success');
+        $this->assertDatabaseHas('danhgia', ['id' => $review->id, 'trangthai' => 'an']);
+
+        $this->actingAs($admin)
+            ->patch(route('admin.danhgia.capnhat', $review), ['trangthai' => 'hien_thi'])
+            ->assertRedirect();
+        $this->assertDatabaseHas('danhgia', ['id' => $review->id, 'trangthai' => 'hien_thi']);
+
+        $this->actingAs($admin)
+            ->patch(route('admin.danhgia.capnhat', $review), ['trangthai' => 'cho_duyet'])
+            ->assertSessionHasErrors('trangthai');
     }
 
     public function test_shipping_order_shows_neither_cancel_nor_review_action(): void

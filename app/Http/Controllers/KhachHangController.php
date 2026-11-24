@@ -138,10 +138,10 @@ class KhachHangController extends Controller
             'user_id' => Auth::id(),
             'sosao' => $validated['sosao'],
             'binhluan' => $validated['binhluan'] ?? null,
-            'trangthai' => 'cho_duyet',
+            'trangthai' => 'hien_thi',
         ]);
 
-        return back()->with('success', 'Đánh giá đã được gửi và đang chờ duyệt.');
+        return back()->with('success', 'Cảm ơn bạn! Đánh giá đã được đăng lên trang sản phẩm.');
     }
 
     public function postDatHang(Request $request)

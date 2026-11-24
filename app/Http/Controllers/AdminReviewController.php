@@ -18,7 +18,7 @@ class AdminReviewController extends Controller
     public function update(Request $request, DanhGia $danhGia)
     {
         $validated = $request->validate([
-            'trangthai' => ['required', 'in:cho_duyet,hien_thi,an'],
+            'trangthai' => ['required', 'in:hien_thi,an'],
             'phanhoi_admin' => ['nullable', 'string', 'max:2000'],
         ]);
         $danhGia->update([
