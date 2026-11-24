@@ -8,6 +8,9 @@
                 <button type="button" class="btn btn-outline-gold px-4 py-2" data-bs-toggle="modal" data-bs-target="#importModal">
                     <i class="fas fa-file-import me-1"></i>Nhập file Excel
                 </button>
+                <a href="{{ route('admin.hangsanxuat.xuat') }}" class="btn btn-outline-gold px-4 py-2">
+                    <i class="fas fa-file-export me-1"></i>Xuất Excel
+                </a>
                 <a href="{{ route('admin.hangsanxuat.them') }}" class="btn btn-gold px-4 py-2">
                     <i class="fas fa-plus me-1"></i>Thêm mới
                 </a>

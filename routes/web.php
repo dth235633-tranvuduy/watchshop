@@ -12,6 +12,7 @@ use App\Http\Controllers\HangSanXuatController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\KhachHangController;
 use App\Http\Controllers\LoaiSanPhamController;
+use App\Http\Controllers\NhaCungCapController;
 use App\Http\Controllers\PhongCachController;
 use App\Http\Controllers\QuanTriVienController;
 use App\Http\Controllers\SanPhamController;
@@ -96,6 +97,16 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'active', 'role:admi
     Route::get('/kho/nhap', [AdminInventoryController::class, 'create'])->name('kho.them');
     Route::post('/kho/nhap', [AdminInventoryController::class, 'store'])->name('kho.luu');
     Route::post('/kho/nha-cung-cap', [AdminInventoryController::class, 'storeSupplier'])->name('kho.nhacungcap.luu');
+    Route::post('/kho/nhap-excel', [AdminInventoryController::class, 'postNhapExcel'])->name('kho.nhap-excel');
+    Route::get('/kho/nhap-excel/xem-truoc', [AdminInventoryController::class, 'getNhapExcelPreview'])->name('kho.nhap-excel-preview');
+    Route::post('/kho/xac-nhan-nhap', [AdminInventoryController::class, 'postXacNhanNhap'])->name('kho.xac-nhan-nhap');
+    Route::get('/kho/huy-nhap-excel', [AdminInventoryController::class, 'huyNhapExcel'])->name('kho.huy-nhap-excel');
+    Route::get('/kho/xuat', [AdminInventoryController::class, 'getXuat'])->name('kho.xuat');
+
+    // --- Nhà cung cấp ---
+    Route::get('/nhacungcap', [NhaCungCapController::class, 'getDanhSach'])->name('nhacungcap.danhsach');
+    Route::post('/nhacungcap/nhap', [NhaCungCapController::class, 'postNhap'])->name('nhacungcap.nhap');
+    Route::get('/nhacungcap/xuat', [NhaCungCapController::class, 'getXuat'])->name('nhacungcap.xuat');
 
     // --- Mã giảm giá ---
     Route::get('/voucher', [AdminVoucherController::class, 'index'])->name('voucher.danhsach');
@@ -130,6 +141,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'active', 'role:admi
     Route::post('/loaisanpham/sua/{id}', [LoaiSanPhamController::class, 'postSua'])->name('loaisanpham.postsua');
     Route::get('/loaisanpham/xoa/{id}', [LoaiSanPhamController::class, 'getXoa'])->name('loaisanpham.xoa');
     Route::post('/loaisanpham/nhap', [LoaiSanPhamController::class, 'postNhap'])->name('loaisanpham.nhap');
+    Route::get('/loaisanpham/xuat', [LoaiSanPhamController::class, 'getXuat'])->name('loaisanpham.xuat');
 
     Route::get('/chatlieuday', [ChatLieuDayController::class, 'index'])->name('chatlieuday.index');
     Route::post('/chatlieuday', [ChatLieuDayController::class, 'store'])->name('chatlieuday.store');
@@ -149,12 +161,14 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'active', 'role:admi
     Route::post('/hangsanxuat/sua/{id}', [HangSanXuatController::class, 'postSua'])->name('hangsanxuat.postsua');
     Route::get('/hangsanxuat/xoa/{id}', [HangSanXuatController::class, 'getXoa'])->name('hangsanxuat.xoa');
     Route::post('/hangsanxuat/nhap', [HangSanXuatController::class, 'postNhap'])->name('hangsanxuat.nhap');
+    Route::get('/hangsanxuat/xuat', [HangSanXuatController::class, 'getXuat'])->name('hangsanxuat.xuat');
 
     // --- SanPham ---
     Route::get('/sanpham', [SanPhamController::class, 'getDanhSach'])->name('sanpham.danhsach');
     Route::get('/sanpham/nhap', [SanPhamController::class, 'getNhap'])->name('sanpham.nhap');
     Route::get('/sanpham/nhap/mau', [SanPhamController::class, 'getMauNhap'])->name('sanpham.mau');
     Route::post('/sanpham/nhap', [SanPhamController::class, 'postNhap'])->name('sanpham.postnhap');
+    Route::get('/sanpham/xuat', [SanPhamController::class, 'getXuat'])->name('sanpham.xuat');
     Route::get('/sanpham/them', [SanPhamController::class, 'getThem'])->name('sanpham.them');
     Route::post('/sanpham/them', [SanPhamController::class, 'postThem'])->name('sanpham.postthem');
     Route::get('/sanpham/sua/{id}', [SanPhamController::class, 'getSua'])->name('sanpham.sua');

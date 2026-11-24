@@ -2,11 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\HangSanXuatExport;
 use App\Imports\HangSanXuatImport;
 use App\Models\HangSanXuat;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Maatwebsite\Excel\Facades\Excel;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 class HangSanXuatController extends Controller
 {
@@ -102,5 +104,10 @@ class HangSanXuatController extends Controller
         }
 
         return back()->with('success', $message);
+    }
+
+    public function getXuat(): BinaryFileResponse
+    {
+        return Excel::download(new HangSanXuatExport, 'danh-sach-hang-san-xuat.xlsx');
     }
 }

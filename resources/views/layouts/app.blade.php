@@ -397,6 +397,9 @@
                                 <a class="nav-link {{ request()->routeIs('admin.kho.*') ? 'active' : '' }}" href="{{ route('admin.kho.danhsach') }}"><i class="fas fa-boxes-stacked"></i>Kho hàng</a>
                             </li>
                             <li class="nav-item">
+                                <a class="nav-link {{ request()->routeIs('admin.nhacungcap.*') ? 'active' : '' }}" href="{{ route('admin.nhacungcap.danhsach') }}"><i class="fas fa-truck"></i>Nhà cung cấp</a>
+                            </li>
+                            <li class="nav-item">
                                 <a class="nav-link {{ request()->routeIs('admin.nguoidung.*') ? 'active' : '' }}" href="{{ route('admin.nguoidung.danhsach') }}"><i class="fas fa-users"></i>Người dùng</a>
                             </li>
                             <li class="nav-item">

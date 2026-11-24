@@ -2,11 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\LoaiSanPhamExport;
 use App\Imports\LoaiSanPhamImport;
 use App\Models\LoaiSanPham;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Maatwebsite\Excel\Facades\Excel;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 class LoaiSanPhamController extends Controller
 {
@@ -89,5 +91,10 @@ class LoaiSanPhamController extends Controller
         }
 
         return back()->with('success', $message);
+    }
+
+    public function getXuat(): BinaryFileResponse
+    {
+        return Excel::download(new LoaiSanPhamExport, 'danh-sach-loai-san-pham.xlsx');
     }
 }

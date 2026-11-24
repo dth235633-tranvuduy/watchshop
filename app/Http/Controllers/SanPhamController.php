@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\SanPhamExport;
 use App\Imports\SanPhamImport;
 use App\Models\ChatLieuDay;
 use App\Models\HangSanXuat;
@@ -255,5 +256,10 @@ class SanPhamController extends Controller
         return redirect()
             ->route('admin.sanpham.nhap')
             ->with('success', $message);
+    }
+
+    public function getXuat(): BinaryFileResponse
+    {
+        return Excel::download(new SanPhamExport, 'danh-sach-san-pham.xlsx');
     }
 }
