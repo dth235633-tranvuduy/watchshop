@@ -68,7 +68,7 @@ class KhachHangController extends Controller
         }
 
         $user->load(['DonHang' => function ($query): void {
-            $query->with(['TinhTrang', 'DonHang_ChiTiet.SanPham'])
+            $query->with(['TinhTrang', 'DonHang_ChiTiet.SanPham', 'LichSu'])
                 ->latest();
         }]);
 
@@ -179,6 +179,7 @@ class KhachHangController extends Controller
             $donhang->ghichu = $validated['ghichu'] ?? null;
             $donhang->phuongthucthanhtoan = $validated['phuongthucthanhtoan'];
             $donhang->save();
+            $donhang->ghiLichSu(Auth::id(), 'Đơn hàng được tạo.');
 
             foreach ($cart as $item) {
                 $soluong = (int) ($item['qty'] ?? 0);
@@ -265,6 +266,7 @@ class KhachHangController extends Controller
 
                 $paidStatus = TinhTrang::firstOrCreate(['tinhtrang' => 'Đã thanh toán']);
                 $order->update(['tinhtrang_id' => $paidStatus->id]);
+                $order->ghiLichSu(Auth::id(), 'Khách hàng đã thanh toán đơn hàng.');
             });
         } catch (Throwable $exception) {
             if ($exception instanceof HttpExceptionInterface) {
@@ -311,6 +313,7 @@ class KhachHangController extends Controller
                     'tinhtrang_id' => $cancelledStatus->id,
                     'lydo_huy' => trim($validated['lydo_huy']),
                 ]);
+                $order->ghiLichSu(Auth::id(), 'Khách hàng hủy đơn. Lý do: '.trim($validated['lydo_huy']));
             });
         } catch (Throwable $exception) {
             if ($exception instanceof HttpExceptionInterface) {

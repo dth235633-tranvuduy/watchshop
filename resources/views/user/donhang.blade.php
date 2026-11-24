@@ -122,6 +122,34 @@
                                             </tbody>
                                         </table>
                                     </div>
+                                    @php
+                                        $mocThoiGian = collect();
+                                        if ($dh->LichSu->isEmpty()) {
+                                            $mocThoiGian->push(['ten' => 'Đơn hàng được tạo', 'luc' => $dh->created_at, 'ghichu' => null]);
+                                            if ($statusName && $dh->updated_at && $dh->updated_at->gt($dh->created_at)) {
+                                                $mocThoiGian->push(['ten' => $statusName, 'luc' => $dh->updated_at, 'ghichu' => null]);
+                                            }
+                                        } else {
+                                            foreach ($dh->LichSu as $ls) {
+                                                $mocThoiGian->push(['ten' => $ls->ten_trang_thai, 'luc' => $ls->created_at, 'ghichu' => $ls->ghichu]);
+                                            }
+                                        }
+                                    @endphp
+                                    <div class="mt-3 bg-white border rounded p-3">
+                                        <h6 class="fw-bold mb-3"><i class="fas fa-route me-1" style="color:var(--ws-gold);"></i>Theo dõi trạng thái đơn hàng</h6>
+                                        <div class="ps-4" style="border-left:2px solid var(--ws-line); margin-left:6px;">
+                                            @foreach($mocThoiGian as $moc)
+                                                <div class="position-relative {{ $loop->last ? '' : 'pb-3' }}">
+                                                    <span class="position-absolute rounded-circle" style="left:-30px; top:4px; width:12px; height:12px; background:{{ $loop->last ? 'var(--ws-gold)' : '#c8c2b4' }};"></span>
+                                                    <div class="fw-semibold {{ $loop->last ? '' : 'text-muted' }}">{{ $moc['ten'] }}</div>
+                                                    <div class="small text-muted">{{ optional($moc['luc'])->format('H:i · d/m/Y') }}</div>
+                                                    @if($moc['ghichu'])
+                                                        <div class="small">{{ $moc['ghichu'] }}</div>
+                                                    @endif
+                                                </div>
+                                            @endforeach
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </td>

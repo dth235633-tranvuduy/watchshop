@@ -22,14 +22,12 @@ return new class extends Migration
         });
 
         DB::table('donhang_chitiet')
-            ->join('sanpham', 'sanpham.id', '=', 'donhang_chitiet.sanpham_id')
-            ->whereNull('donhang_chitiet.tensanpham_snapshot')
-            ->update(['donhang_chitiet.tensanpham_snapshot' => DB::raw('sanpham.tensanpham')]);
+            ->whereNull('tensanpham_snapshot')
+            ->update(['tensanpham_snapshot' => DB::raw('(select tensanpham from sanpham where sanpham.id = donhang_chitiet.sanpham_id)')]);
 
         DB::table('chitietphieunhap')
-            ->join('sanpham', 'sanpham.id', '=', 'chitietphieunhap.sanpham_id')
-            ->whereNull('chitietphieunhap.tensanpham_snapshot')
-            ->update(['chitietphieunhap.tensanpham_snapshot' => DB::raw('sanpham.tensanpham')]);
+            ->whereNull('tensanpham_snapshot')
+            ->update(['tensanpham_snapshot' => DB::raw('(select tensanpham from sanpham where sanpham.id = chitietphieunhap.sanpham_id)')]);
     }
 
     public function down(): void

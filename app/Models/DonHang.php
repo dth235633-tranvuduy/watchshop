@@ -41,4 +41,28 @@ class DonHang extends Model
     {
         return $this->hasMany(DonHang_ChiTiet::class, 'donhang_id');
     }
+
+    public function LichSu(): HasMany
+    {
+        return $this->hasMany(DonHangLichSu::class, 'donhang_id')
+            ->orderBy('created_at')
+            ->orderBy('id');
+    }
+
+    /**
+     * Ghi lại một mốc lịch sử cho trạng thái hiện tại của đơn hàng.
+     */
+    public function ghiLichSu(?int $userId = null, ?string $ghiChu = null): DonHangLichSu
+    {
+        $tenTrangThai = $this->tinhtrang_id
+            ? TinhTrang::whereKey($this->tinhtrang_id)->value('tinhtrang')
+            : null;
+
+        return $this->LichSu()->create([
+            'tinhtrang_id' => $this->tinhtrang_id,
+            'ten_trang_thai' => $tenTrangThai ?? 'Không rõ',
+            'user_id' => $userId,
+            'ghichu' => $ghiChu,
+        ]);
+    }
 }

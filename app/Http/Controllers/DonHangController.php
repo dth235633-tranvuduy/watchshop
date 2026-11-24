@@ -6,6 +6,7 @@ use App\Models\DonHang;
 use App\Models\DonHang_ChiTiet;
 use App\Models\TinhTrang;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Style\Color;
@@ -43,7 +44,7 @@ class DonHangController extends Controller
 
     public function getSua(int $id)
     {
-        $donhang = DonHang::with(['User', 'TinhTrang', 'DonHang_ChiTiet.SanPham'])->findOrFail($id);
+        $donhang = DonHang::with(['User', 'TinhTrang', 'DonHang_ChiTiet.SanPham', 'LichSu.User'])->findOrFail($id);
         $this->ensureDefaultStatuses();
         $tinhtrang = TinhTrang::all();
 
@@ -76,7 +77,11 @@ class DonHangController extends Controller
             'tinhtrang_id' => ['required', 'integer', 'exists:tinhtrang,id'],
         ]);
         $donhang = DonHang::findOrFail($id);
-        $donhang->update(['tinhtrang_id' => $validated['tinhtrang_id']]);
+
+        if ((int) $validated['tinhtrang_id'] !== (int) $donhang->tinhtrang_id) {
+            $donhang->update(['tinhtrang_id' => $validated['tinhtrang_id']]);
+            $donhang->ghiLichSu(Auth::id(), 'Quản trị viên cập nhật trạng thái đơn hàng.');
+        }
 
         return back()->with('success', 'Đã cập nhật tình trạng đơn hàng.');
     }

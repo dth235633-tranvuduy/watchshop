@@ -189,6 +189,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'active', 'role:admi
     Route::get('/donhang/{id}/in', [DonHangController::class, 'getIn'])->name('donhang.in');
     Route::get('/donhang/sua/{id}', [DonHangController::class, 'getSua'])->name('donhang.sua');
     Route::post('/donhang/sua/{id}', [DonHangController::class, 'postSua'])->name('donhang.postsua');
+    Route::patch('/donhang/{id}/trang-thai', [DonHangController::class, 'updateStatus'])->name('donhang.trangthai');
     Route::get('/donhang/xoa/{id}', [DonHangController::class, 'getXoa'])->name('donhang.xoa');
 
     // --- TuyenDung (Job applications) ---
