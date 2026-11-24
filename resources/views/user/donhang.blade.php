@@ -8,6 +8,10 @@
     <a href="{{ route('user.home') }}" class="btn btn-outline-dark btn-sm"><i class="fas fa-arrow-left me-1"></i>Trang cá nhân</a>
 </div>
 
+@php
+    $danhGiaTheoSanPham = $user->DanhGia->keyBy('sanpham_id');
+@endphp
+
 @if($user->DonHang->count() > 0)
     <div class="table-responsive card border-0 shadow-sm">
         <table class="table table-hover align-middle mb-0">
@@ -19,6 +23,7 @@
                     <th class="text-end" style="width:150px;">Tổng tiền</th>
                     <th class="text-center" style="width:190px;">Tình trạng</th>
                     <th class="text-center" style="width:110px;">Chi tiết</th>
+                    <th class="text-center" style="width:130px;">Thao tác</th>
                 </tr>
             </thead>
             <tbody>
@@ -52,22 +57,26 @@
                                 @elseif($dh->phuongthucthanhtoan === 'bank' && $statusName !== 'Đã hủy')
                                     <span class="small fw-semibold text-warning"><i class="fas fa-clock me-1"></i>Chưa thanh toán</span>
                                 @endif
-                                @if($coTheHuy)
-                                    <div class="d-flex flex-wrap justify-content-center gap-2">
-                                        <button type="button" class="btn btn-sm btn-outline-danger"
-                                                data-bs-toggle="modal" data-bs-target="#huyDon{{ $dh->id }}">
-                                            <i class="fas fa-times me-1"></i>Hủy đơn
-                                        </button>
-                                    </div>
-                                @endif
                             </div>
                         </td>
                         <td class="text-center">
                             <button class="btn btn-outline-gold btn-sm" data-bs-toggle="collapse" data-bs-target="#chiTiet{{ $dh->id }}"><i class="fas fa-eye"></i></button>
                         </td>
+                        <td class="text-center">
+                            @if($coTheHuy)
+                                <button type="button" class="btn btn-sm btn-outline-danger"
+                                        data-bs-toggle="modal" data-bs-target="#huyDon{{ $dh->id }}">
+                                    <i class="fas fa-times me-1"></i>Hủy đơn
+                                </button>
+                            @elseif($statusName === 'Đã hủy')
+                                <span class="small text-danger fw-semibold">Đã hủy</span>
+                            @else
+                                <span class="text-muted">—</span>
+                            @endif
+                        </td>
                     </tr>
                     <tr>
-                        <td colspan="6" class="p-0 border-0">
+                        <td colspan="7" class="p-0 border-0">
                             <div class="collapse" id="chiTiet{{ $dh->id }}">
                                 <div class="p-3" style="background:var(--ws-cream);">
                                     <p class="mb-2 small"><strong>Người nhận:</strong> {{ $dh->tennguoinhan ?: $user->name }} · <strong>SĐT:</strong> {{ $dh->dienthoaigiaohang }}</p>
@@ -121,7 +130,29 @@
                                                 @foreach($dh->DonHang_ChiTiet as $ct)
                                                     <tr>
                                                         <td class="text-center">{{ $loop->iteration }}</td>
-                                                        <td>{{ $ct->tensanpham_snapshot ?: optional($ct->SanPham)->tensanpham ?: 'Sản phẩm đã xóa' }}</td>
+                                                        <td>
+                                                            {{ $ct->tensanpham_snapshot ?: optional($ct->SanPham)->tensanpham ?: 'Sản phẩm đã xóa' }}
+                                                            @if($statusName === 'Đã giao' && $ct->sanpham_id)
+                                                                @php $dg = $danhGiaTheoSanPham->get($ct->sanpham_id); @endphp
+                                                                <div class="mt-1">
+                                                                    @if($dg)
+                                                                        <span class="small">
+                                                                            @for($sao = 1; $sao <= 5; $sao++)
+                                                                                <i class="fas fa-star" style="color:{{ $sao <= $dg->sosao ? 'var(--ws-gold)' : '#ddd6c4' }};"></i>
+                                                                            @endfor
+                                                                        </span>
+                                                                        <span class="small text-muted">
+                                                                            · {{ $dg->trangthai === 'hien_thi' ? 'Đánh giá đã hiển thị' : ($dg->trangthai === 'an' ? 'Đánh giá đã bị ẩn' : 'Đánh giá đang chờ duyệt') }}
+                                                                        </span>
+                                                                    @else
+                                                                        <button type="button" class="btn btn-sm btn-outline-gold"
+                                                                                data-bs-toggle="modal" data-bs-target="#danhGia{{ $dh->id }}_{{ $ct->sanpham_id }}">
+                                                                            <i class="fas fa-star me-1"></i>Đánh giá sản phẩm
+                                                                        </button>
+                                                                    @endif
+                                                                </div>
+                                                            @endif
+                                                        </td>
                                                         <td class="text-center">{{ $ct->soluongban }}</td>
                                                         <td class="text-end">{{ number_format($ct->dongiaban, 0, ',', '.') }} đ</td>
                                                         <td class="text-end">{{ number_format($ct->soluongban * $ct->dongiaban, 0, ',', '.') }} đ</td>
@@ -238,6 +269,55 @@
                 </form>
             </div>
         </div>
+    @endif
+@endforeach
+
+<style>
+    .star-rating .star-label { font-size: 30px; line-height: 1; color: #ddd6c4; cursor: pointer; transition: color .15s; }
+    .star-rating input:checked ~ .star-label,
+    .star-rating .star-label:hover,
+    .star-rating .star-label:hover ~ .star-label { color: var(--ws-gold); }
+</style>
+
+@foreach($user->DonHang as $dh)
+    @if(optional($dh->TinhTrang)->tinhtrang === 'Đã giao')
+        @foreach($dh->DonHang_ChiTiet as $ct)
+            @if($ct->sanpham_id && ! $danhGiaTheoSanPham->has($ct->sanpham_id))
+                <div class="modal fade" id="danhGia{{ $dh->id }}_{{ $ct->sanpham_id }}" tabindex="-1"
+                     aria-labelledby="danhGiaLabel{{ $dh->id }}_{{ $ct->sanpham_id }}" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered">
+                        <form method="POST" action="{{ route('user.danhgia.luu', $ct->sanpham_id) }}" class="modal-content">
+                            @csrf
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="danhGiaLabel{{ $dh->id }}_{{ $ct->sanpham_id }}">Đánh giá sản phẩm</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
+                            </div>
+                            <div class="modal-body">
+                                <p class="fw-semibold mb-2">{{ $ct->tensanpham_snapshot ?: optional($ct->SanPham)->tensanpham }}</p>
+                                <label class="form-label fw-semibold d-block text-center">Bạn chấm mấy sao cho sản phẩm này?</label>
+                                <div class="star-rating d-flex flex-row-reverse justify-content-center gap-1 mb-3">
+                                    @for($sao = 5; $sao >= 1; $sao--)
+                                        <input type="radio" class="btn-check" name="sosao"
+                                               id="sao{{ $dh->id }}_{{ $ct->sanpham_id }}_{{ $sao }}"
+                                               value="{{ $sao }}" {{ $sao === 5 ? 'checked' : '' }}>
+                                        <label class="star-label" for="sao{{ $dh->id }}_{{ $ct->sanpham_id }}_{{ $sao }}" title="{{ $sao }} sao"><i class="fas fa-star"></i></label>
+                                    @endfor
+                                </div>
+                                <label for="binhluan{{ $dh->id }}_{{ $ct->sanpham_id }}" class="form-label fw-semibold">Nhận xét của bạn</label>
+                                <textarea id="binhluan{{ $dh->id }}_{{ $ct->sanpham_id }}" name="binhluan" rows="3"
+                                          class="form-control" maxlength="2000"
+                                          placeholder="Chia sẻ cảm nhận về sản phẩm (không bắt buộc)..."></textarea>
+                                <p class="small text-muted mt-2 mb-0">Đánh giá sẽ được gửi cho quản trị viên duyệt trước khi hiển thị trên trang sản phẩm.</p>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Để sau</button>
+                                <button type="submit" class="btn btn-gold">Gửi đánh giá</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            @endif
+        @endforeach
     @endif
 @endforeach
 @endsection

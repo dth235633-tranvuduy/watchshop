@@ -36,4 +36,9 @@ class User extends Authenticatable
     {
         return $this->hasMany(DonHang::class, 'user_id');
     }
+
+    public function DanhGia(): HasMany
+    {
+        return $this->hasMany(DanhGia::class, 'user_id');
+    }
 }

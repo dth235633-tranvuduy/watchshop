@@ -67,7 +67,7 @@ class KhachHangController extends Controller
             return redirect()->route('login')->with('error', 'Vui lòng đăng nhập.');
         }
 
-        $user->load(['DonHang' => function ($query): void {
+        $user->load(['DanhGia', 'DonHang' => function ($query): void {
             $relations = ['TinhTrang', 'DonHang_ChiTiet.SanPham'];
             if (DonHang::coBangLichSu()) {
                 $relations[] = 'LichSu';
