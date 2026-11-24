@@ -31,7 +31,7 @@ class DonHangLichSuTest extends TestCase
         ]);
     }
 
-    private function placeOrder(User $user, SanPham $product): DonHang
+    private function placeOrder(User $user, SanPham $product, string $paymentMethod = 'cod'): DonHang
     {
         $this->actingAs($user)
             ->withSession(['cart' => [
@@ -46,7 +46,7 @@ class DonHangLichSuTest extends TestCase
                 'tennguoinhan' => 'Test Customer',
                 'dienthoaigiaohang' => '0900000000',
                 'diachigiaohang' => 'Test address',
-                'phuongthucthanhtoan' => 'cod',
+                'phuongthucthanhtoan' => $paymentMethod,
             ])
             ->assertRedirect(route('user.dathangthanhcong'));
 
@@ -62,8 +62,12 @@ class DonHangLichSuTest extends TestCase
 
         $this->assertDatabaseHas('donhang_lichsu', [
             'donhang_id' => $order->id,
-            'ten_trang_thai' => 'Chưa thanh toán',
+            'ten_trang_thai' => 'Chờ xác nhận',
             'user_id' => $user->id,
+        ]);
+        $this->assertDatabaseHas('donhang', [
+            'id' => $order->id,
+            'da_thanh_toan' => false,
         ]);
         $this->assertSame(1, $order->LichSu()->count());
     }
@@ -153,7 +157,59 @@ class DonHangLichSuTest extends TestCase
             ->get(route('user.donhang'))
             ->assertOk()
             ->assertSee('Theo dõi trạng thái đơn hàng')
-            ->assertSee('Chưa thanh toán')
+            ->assertSee('Chờ xác nhận')
             ->assertSee('Đã giao');
+    }
+
+    public function test_bank_payment_marks_order_paid_without_changing_delivery_status(): void
+    {
+        $user = User::factory()->create(['is_active' => true]);
+        $product = $this->createProduct();
+        $order = $this->placeOrder($user, $product, 'bank');
+
+        $this->actingAs($user)
+            ->post(route('user.donhang.thanhtoan', $order->id))
+            ->assertRedirect()
+            ->assertSessionHas('success');
+
+        $order->refresh();
+        $this->assertTrue($order->da_thanh_toan);
+        $this->assertSame('Chờ xác nhận', $order->TinhTrang->tinhtrang);
+        $this->assertDatabaseHas('donhang_lichsu', [
+            'donhang_id' => $order->id,
+            'ten_trang_thai' => 'Đã thanh toán',
+            'user_id' => $user->id,
+        ]);
+    }
+
+    public function test_paid_order_cannot_be_cancelled_by_customer(): void
+    {
+        $user = User::factory()->create(['is_active' => true]);
+        $product = $this->createProduct();
+        $order = $this->placeOrder($user, $product, 'bank');
+        $order->update(['da_thanh_toan' => true]);
+
+        $this->actingAs($user)
+            ->patch(route('user.donhang.huy', $order->id), ['lydo_huy' => 'Đổi ý'])
+            ->assertRedirect()
+            ->assertSessionHas('error');
+
+        $this->assertSame('Chờ xác nhận', $order->refresh()->TinhTrang->tinhtrang);
+    }
+
+    public function test_admin_order_page_offers_the_delivery_status_flow(): void
+    {
+        $admin = User::factory()->create(['role' => 'admin', 'is_active' => true]);
+        $user = User::factory()->create(['is_active' => true]);
+        $product = $this->createProduct();
+        $order = $this->placeOrder($user, $product);
+
+        $response = $this->actingAs($admin)
+            ->get(route('admin.donhang.sua', $order->id))
+            ->assertOk();
+
+        foreach (DonHang::LUONG_TRANG_THAI as $status) {
+            $response->assertSee($status);
+        }
     }
 }

@@ -92,7 +92,7 @@ class DonHangController extends Controller
 
     private function ensureDefaultStatuses(): void
     {
-        foreach (['Chưa thanh toán', 'Đã thanh toán', 'Đã hủy'] as $status) {
+        foreach (DonHang::LUONG_TRANG_THAI as $status) {
             TinhTrang::firstOrCreate(['tinhtrang' => $status]);
         }
     }

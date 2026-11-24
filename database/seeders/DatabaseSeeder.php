@@ -23,7 +23,7 @@ class DatabaseSeeder extends Seeder
             'email' => 'test@example.com',
         ]);
 
-        foreach (['Chưa thanh toán', 'Đã thanh toán', 'Đã hủy'] as $status) {
+        foreach (['Chờ xác nhận', 'Đã xác nhận', 'Đang giao', 'Đã giao', 'Đã hủy'] as $status) {
             TinhTrang::firstOrCreate(['tinhtrang' => $status]);
         }
 

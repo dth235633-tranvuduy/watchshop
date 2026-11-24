@@ -26,10 +26,17 @@
                     @php
                         $tong = $dh->DonHang_ChiTiet->sum(fn ($ct) => $ct->soluongban * $ct->dongiaban);
                         $statusName = optional($dh->TinhTrang)->tinhtrang;
-                        $statusClass = $statusName === 'Đã thanh toán' ? 'success' : ($statusName === 'Đã hủy' ? 'danger' : 'warning');
+                        $statusClass = match ($statusName) {
+                            'Đã giao' => 'success',
+                            'Đã hủy' => 'danger',
+                            'Đang giao' => 'primary',
+                            'Đã xác nhận' => 'info',
+                            default => 'warning',
+                        };
                         $paymentMethodName = $dh->phuongthucthanhtoan === 'bank'
                             ? 'Thanh toán chuyển khoản'
                             : 'Thanh toán khi nhận hàng (COD)';
+                        $coTheHuy = in_array($statusName, ['Chờ xác nhận', 'Đã xác nhận'], true) && ! $dh->da_thanh_toan;
                     @endphp
                     <tr>
                         <td class="text-center">{{ $loop->iteration }}</td>
@@ -40,7 +47,12 @@
                             <div class="d-flex flex-column align-items-center gap-2">
                                 <span class="badge bg-{{ $statusClass }}">{{ optional($dh->TinhTrang)->tinhtrang }}</span>
                                 <span class="small text-muted">{{ $paymentMethodName }}</span>
-                                @if(optional($dh->TinhTrang)->tinhtrang === 'Chưa thanh toán')
+                                @if($dh->da_thanh_toan)
+                                    <span class="small fw-semibold text-success"><i class="fas fa-check-circle me-1"></i>Đã thanh toán</span>
+                                @elseif($dh->phuongthucthanhtoan === 'bank' && $statusName !== 'Đã hủy')
+                                    <span class="small fw-semibold text-warning"><i class="fas fa-clock me-1"></i>Chưa thanh toán</span>
+                                @endif
+                                @if($coTheHuy)
                                     <div class="d-flex flex-wrap justify-content-center gap-2">
                                         <button type="button" class="btn btn-sm btn-outline-danger"
                                                 data-bs-toggle="modal" data-bs-target="#huyDon{{ $dh->id }}">
@@ -63,7 +75,7 @@
                                     @if($dh->lydo_huy)
                                         <p class="mb-3 small text-danger"><strong>Lý do hủy:</strong> {{ $dh->lydo_huy }}</p>
                                     @endif
-                                    @if($dh->phuongthucthanhtoan === 'bank' && $statusName === 'Chưa thanh toán')
+                                    @if($dh->phuongthucthanhtoan === 'bank' && ! $dh->da_thanh_toan && $statusName !== 'Đã hủy')
                                         @php
                                             $bank = config('payment.bank');
                                             $bankAmount = (int) round((float) $dh->tongtien);
@@ -136,6 +148,37 @@
                                             }
                                         }
                                     @endphp
+                                    @if($statusName === 'Đã hủy')
+                                        <div class="alert alert-danger mt-3 mb-0 py-2 small"><i class="fas fa-ban me-1"></i>Đơn hàng này đã bị hủy.</div>
+                                    @else
+                                        @php
+                                            $cacBuoc = ['Chờ xác nhận', 'Đã xác nhận', 'Đang giao', 'Đã giao'];
+                                            $buocTimThay = array_search($statusName, $cacBuoc, true);
+                                            $buocHienTai = $buocTimThay === false ? 0 : $buocTimThay;
+                                        @endphp
+                                        <div class="bg-white border rounded mt-3 px-3 pt-3 pb-2">
+                                            <div class="d-flex">
+                                                @foreach($cacBuoc as $i => $tenBuoc)
+                                                    <div class="flex-fill text-center position-relative">
+                                                        @if($i > 0)
+                                                            <span class="position-absolute" style="top:11px; left:-50%; width:100%; border-top:2px solid {{ $i <= $buocHienTai ? 'var(--ws-gold)' : 'var(--ws-line)' }};"></span>
+                                                        @endif
+                                                        <span class="d-inline-flex justify-content-center align-items-center rounded-circle position-relative" style="width:24px; height:24px; background:{{ $i <= $buocHienTai ? 'var(--ws-gold)' : '#e9e5da' }}; color:{{ $i <= $buocHienTai ? '#fff' : '#8a8578' }};">
+                                                            @if($i < $buocHienTai)
+                                                                <i class="fas fa-check" style="font-size:11px;"></i>
+                                                            @else
+                                                                <span style="font-size:11px;">{{ $i + 1 }}</span>
+                                                            @endif
+                                                        </span>
+                                                        <div class="small {{ $i === $buocHienTai ? 'fw-bold' : 'text-muted' }} mt-1">{{ $tenBuoc }}</div>
+                                                    </div>
+                                                @endforeach
+                                            </div>
+                                            @if($statusName === 'Đang giao')
+                                                <p class="small text-center mb-1 mt-1" style="color:var(--ws-gold);"><i class="fas fa-truck me-1"></i>Đơn hàng đang trên đường giao — bạn để ý điện thoại để nhận hàng nhé.</p>
+                                            @endif
+                                        </div>
+                                    @endif
                                     <div class="mt-3 bg-white border rounded p-3">
                                         <h6 class="fw-bold mb-3"><i class="fas fa-route me-1" style="color:var(--ws-gold);"></i>Theo dõi trạng thái đơn hàng</h6>
                                         <div class="ps-4" style="border-left:2px solid var(--ws-line); margin-left:6px;">
@@ -169,7 +212,7 @@
 @endif
 
 @foreach($user->DonHang as $dh)
-    @if(optional($dh->TinhTrang)->tinhtrang === 'Chưa thanh toán')
+    @if(in_array(optional($dh->TinhTrang)->tinhtrang, ['Chờ xác nhận', 'Đã xác nhận'], true) && ! $dh->da_thanh_toan)
         <div class="modal fade" id="huyDon{{ $dh->id }}" tabindex="-1"
              aria-labelledby="huyDonLabel{{ $dh->id }}" aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered">

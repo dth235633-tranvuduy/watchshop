@@ -78,7 +78,13 @@
         @forelse($user->DonHang->take(5) as $dh)
             @php
                 $statusName = optional($dh->TinhTrang)->tinhtrang;
-                $statusClass = $statusName === 'Đã thanh toán' ? 'success' : ($statusName === 'Đã hủy' ? 'danger' : 'warning');
+                $statusClass = match ($statusName) {
+                    'Đã giao' => 'success',
+                    'Đã hủy' => 'danger',
+                    'Đang giao' => 'primary',
+                    'Đã xác nhận' => 'info',
+                    default => 'warning',
+                };
                 $orderTotal = $dh->tongtien ?? $dh->DonHang_ChiTiet->sum(fn ($ct) => $ct->soluongban * $ct->dongiaban);
             @endphp
             <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 border-top py-3">

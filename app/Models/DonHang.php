@@ -10,15 +10,24 @@ use Illuminate\Support\Facades\Schema;
 
 class DonHang extends Model
 {
+    /**
+     * Luồng trạng thái giao hàng của một đơn, theo thứ tự tiến triển.
+     * Thanh toán được theo dõi riêng ở cột da_thanh_toan.
+     *
+     * @var array<int, string>
+     */
+    public const LUONG_TRANG_THAI = ['Chờ xác nhận', 'Đã xác nhận', 'Đang giao', 'Đã giao', 'Đã hủy'];
+
     protected $table = 'donhang';
 
-    protected $fillable = ['user_id', 'voucher_id', 'tinhtrang_id', 'tennguoinhan', 'dienthoaigiaohang', 'diachigiaohang', 'ghichu', 'lydo_huy', 'phuongthucthanhtoan', 'tiengiam', 'tongtien'];
+    protected $fillable = ['user_id', 'voucher_id', 'tinhtrang_id', 'da_thanh_toan', 'tennguoinhan', 'dienthoaigiaohang', 'diachigiaohang', 'ghichu', 'lydo_huy', 'phuongthucthanhtoan', 'tiengiam', 'tongtien'];
 
     protected function casts(): array
     {
         return [
             'created_at' => 'datetime',
             'updated_at' => 'datetime',
+            'da_thanh_toan' => 'boolean',
             'tiengiam' => 'decimal:2',
             'tongtien' => 'decimal:2',
         ];
@@ -75,16 +84,18 @@ class DonHang extends Model
     /**
      * Ghi lại một mốc lịch sử cho trạng thái hiện tại của đơn hàng.
      * Trả về null (và không ghi gì) khi bảng lịch sử chưa được tạo.
+     * $tenTrangThai cho phép ghi một sự kiện không đổi trạng thái giao hàng,
+     * ví dụ mốc "Đã thanh toán".
      */
-    public function ghiLichSu(?int $userId = null, ?string $ghiChu = null): ?DonHangLichSu
+    public function ghiLichSu(?int $userId = null, ?string $ghiChu = null, ?string $tenTrangThai = null): ?DonHangLichSu
     {
         if (! self::coBangLichSu()) {
             return null;
         }
 
-        $tenTrangThai = $this->tinhtrang_id
-            ? TinhTrang::whereKey($this->tinhtrang_id)->value('tinhtrang')
-            : null;
+        if ($tenTrangThai === null && $this->tinhtrang_id) {
+            $tenTrangThai = TinhTrang::whereKey($this->tinhtrang_id)->value('tinhtrang');
+        }
 
         return $this->LichSu()->create([
             'tinhtrang_id' => $this->tinhtrang_id,

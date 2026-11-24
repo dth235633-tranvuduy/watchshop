@@ -166,8 +166,9 @@ class KhachHangController extends Controller
 
             $donhang = new DonHang;
             $donhang->user_id = Auth::id();
-            $status = TinhTrang::firstOrCreate(['tinhtrang' => 'Chưa thanh toán']);
+            $status = TinhTrang::firstOrCreate(['tinhtrang' => 'Chờ xác nhận']);
             $donhang->tinhtrang_id = $status->id;
+            $donhang->da_thanh_toan = false;
             $voucherData = session('voucher');
             $voucher = $voucherData ? Voucher::lockForUpdate()->find($voucherData['id']) : null;
             $subtotal = collect($cart)->sum(fn (array $item): float => $item['price'] * $item['qty']);
@@ -253,7 +254,7 @@ class KhachHangController extends Controller
                     abort(422, 'Đơn hàng đã hủy không thể thanh toán.');
                 }
 
-                if ($order->TinhTrang?->tinhtrang === 'Đã thanh toán') {
+                if ($order->da_thanh_toan) {
                     return;
                 }
 
@@ -268,9 +269,8 @@ class KhachHangController extends Controller
                     $voucher->increment('daludung');
                 }
 
-                $paidStatus = TinhTrang::firstOrCreate(['tinhtrang' => 'Đã thanh toán']);
-                $order->update(['tinhtrang_id' => $paidStatus->id]);
-                $order->ghiLichSu(Auth::id(), 'Khách hàng đã thanh toán đơn hàng.');
+                $order->update(['da_thanh_toan' => true]);
+                $order->ghiLichSu(Auth::id(), 'Khách hàng đã thanh toán đơn hàng.', 'Đã thanh toán');
             });
         } catch (Throwable $exception) {
             if ($exception instanceof HttpExceptionInterface) {
@@ -299,11 +299,14 @@ class KhachHangController extends Controller
                     ->lockForUpdate()
                     ->findOrFail($id);
 
-                if ($order->TinhTrang?->tinhtrang === 'Đã thanh toán') {
+                if ($order->da_thanh_toan) {
                     abort(422, 'Đơn hàng đã thanh toán không thể hủy.');
                 }
                 if ($order->TinhTrang?->tinhtrang === 'Đã hủy') {
                     return;
+                }
+                if (in_array($order->TinhTrang?->tinhtrang, ['Đang giao', 'Đã giao'], true)) {
+                    abort(422, 'Đơn hàng đang được giao hoặc đã giao nên không thể hủy.');
                 }
 
                 $cancelledStatus = TinhTrang::firstOrCreate(['tinhtrang' => 'Đã hủy']);

@@ -72,7 +72,8 @@
                         <button type="submit" class="btn btn-primary w-100"><i class="fas fa-sync-alt me-1"></i>Cập nhật trạng thái</button>
                     </div>
                 </form>
-                <p class="small text-muted mt-2 mb-0">Mỗi lần đổi trạng thái, hệ thống sẽ ghi lại một mốc vào lịch sử bên dưới và khách hàng sẽ thấy mốc đó trong trang đơn hàng của họ.</p>
+                <p class="small mt-2 mb-1">Thanh toán: <strong class="{{ $donhang->da_thanh_toan ? 'text-success' : 'text-warning' }}">{{ $donhang->da_thanh_toan ? 'Đã thanh toán' : 'Chưa thanh toán' }}</strong> · Phương thức: {{ $donhang->phuongthucthanhtoan === 'bank' ? 'Chuyển khoản ngân hàng' : 'Thanh toán khi nhận hàng (COD)' }}</p>
+                <p class="small text-muted mb-0">Mỗi lần đổi trạng thái, hệ thống sẽ ghi lại một mốc vào lịch sử bên dưới và khách hàng sẽ thấy mốc đó trong trang đơn hàng của họ.</p>
             </div>
         </div>
 

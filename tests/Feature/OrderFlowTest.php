@@ -91,8 +91,8 @@ class OrderFlowTest extends TestCase
             ]);
 
         $response->assertRedirect(route('user.dathangthanhcong'));
-        $this->assertDatabaseHas('tinhtrang', ['tinhtrang' => 'Chưa thanh toán']);
-        $this->assertDatabaseHas('donhang', ['user_id' => $user->id, 'tinhtrang_id' => TinhTrang::first()->id]);
+        $this->assertDatabaseHas('tinhtrang', ['tinhtrang' => 'Chờ xác nhận']);
+        $this->assertDatabaseHas('donhang', ['user_id' => $user->id, 'tinhtrang_id' => TinhTrang::where('tinhtrang', 'Chờ xác nhận')->value('id')]);
         $this->assertDatabaseHas('donhang_chitiet', ['sanpham_id' => $product->id, 'soluongban' => 1]);
         $this->assertDatabaseHas('sanpham', ['id' => $product->id, 'soluong' => 4]);
         $this->assertDatabaseHas('donhang', ['phuongthucthanhtoan' => 'cod']);

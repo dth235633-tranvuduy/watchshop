@@ -87,9 +87,22 @@
                             </td>
                             <td class="text-center">{{ optional($value->created_at)->format('d/m/Y H:i') }}</td>
                             <td class="text-center">
-                                <span class="badge bg-{{ optional($value->TinhTrang)->tinhtrang == 'Đã giao' ? 'success' : (optional($value->TinhTrang)->tinhtrang == 'Đang giao' ? 'warning' : 'secondary') }}">
+                                @php
+                                    $badgeClass = match (optional($value->TinhTrang)->tinhtrang) {
+                                        'Đã giao' => 'success',
+                                        'Đã hủy' => 'danger',
+                                        'Đang giao' => 'primary',
+                                        'Đã xác nhận' => 'info',
+                                        'Chờ xác nhận' => 'warning',
+                                        default => 'secondary',
+                                    };
+                                @endphp
+                                <span class="badge bg-{{ $badgeClass }}">
                                     {{ optional($value->TinhTrang)->tinhtrang }}
                                 </span>
+                                <div class="small mt-1 {{ $value->da_thanh_toan ? 'text-success fw-semibold' : 'text-muted' }}">
+                                    {{ $value->da_thanh_toan ? 'Đã thanh toán' : 'Chưa thanh toán' }}
+                                </div>
                             </td>
                             <td class="text-center" style="width: 100px;">
                                 <div class="d-grid gap-1 mx-auto" style="width: 82px;">
