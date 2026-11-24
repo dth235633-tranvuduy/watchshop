@@ -26,12 +26,21 @@ class AdminInventoryController extends Controller
         return view('admin.kho.index', compact('receipts', 'lowStock'));
     }
 
-    public function create(): View
+    public function create(Request $request): View
     {
         $suppliers = NhaCungCap::where('trangthai', true)->orderBy('tennhacungcap')->get();
-        $products = SanPham::orderBy('tensanpham')->get();
+        $products = SanPham::query()
+            ->orderByRaw('CASE WHEN soluong < 3 THEN 0 ELSE 1 END')
+            ->orderBy('soluong')
+            ->orderBy('tensanpham')
+            ->get();
 
-        return view('admin.kho.create', compact('suppliers', 'products'));
+        $selectedProducts = collect($request->query('sanpham', []))
+            ->map(fn ($id) => $products->firstWhere('id', (int) $id))
+            ->filter()
+            ->values();
+
+        return view('admin.kho.create', compact('suppliers', 'products', 'selectedProducts'));
     }
 
     public function store(Request $request)

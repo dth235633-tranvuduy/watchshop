@@ -11,6 +11,19 @@ use RuntimeException;
 class StockReceiptService
 {
     /**
+     * Hệ số tính giá bán từ đơn giá nhập: cộng 10% VAT và 5% phí dịch vụ.
+     */
+    public const HE_SO_GIA_BAN = 1.15;
+
+    /**
+     * Giá bán cho khách, suy ra từ đơn giá nhập và làm tròn đến nghìn đồng.
+     */
+    public static function giaBanTuGiaNhap(float $giaNhap): float
+    {
+        return round($giaNhap * self::HE_SO_GIA_BAN / 1000) * 1000;
+    }
+
+    /**
      * @param  array<int, array{sanpham_id: int, soluong: int, dongianhap: float}>  $items
      */
     public function receive(
@@ -18,8 +31,9 @@ class StockReceiptService
         array $items,
         ?string $receivedAt = null,
         ?string $note = null,
+        bool $capNhatGiaBan = true,
     ): PhieuNhap {
-        return DB::transaction(function () use ($supplierId, $items, $receivedAt, $note): PhieuNhap {
+        return DB::transaction(function () use ($supplierId, $items, $receivedAt, $note, $capNhatGiaBan): PhieuNhap {
             $receipt = PhieuNhap::create([
                 'nhacungcap_id' => $supplierId,
                 'user_id' => auth()->id(),
@@ -39,6 +53,10 @@ class StockReceiptService
                 }
 
                 $product->increment('soluong', $item['soluong']);
+
+                if ($capNhatGiaBan && $item['dongianhap'] > 0) {
+                    $product->update(['dongia' => self::giaBanTuGiaNhap($item['dongianhap'])]);
+                }
 
                 $receipt->ChiTiet()->create([
                     'sanpham_id' => $item['sanpham_id'],

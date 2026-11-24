@@ -86,6 +86,13 @@
                         </tbody>
                     </table>
                 </div>
+                @if($lowStock->isNotEmpty())
+                    <div class="card-body pt-0 text-end">
+                        <a href="{{ route('admin.kho.them', ['sanpham' => $lowStock->pluck('id')->all()]) }}" class="btn btn-sm btn-gold">
+                            <i class="fas fa-file-import me-1"></i>Tạo phiếu nhập cho các sản phẩm này
+                        </a>
+                    </div>
+                @endif
             </div>
         </div>
 

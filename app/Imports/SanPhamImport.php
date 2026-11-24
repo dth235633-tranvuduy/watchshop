@@ -64,11 +64,14 @@ class SanPhamImport implements ToModel, WithHeadingRow
             $product->save();
 
             if ($quantity > 0) {
+                // File Excel ở trang Sản phẩm: cột Đơn giá là giá bán, sản phẩm
+                // đã được tạo với giá đó nên phiếu nhập kèm theo không tính lại giá.
                 $this->stockReceipts->receive(
                     $this->stockReceipts->defaultExcelSupplier()->id,
                     [['sanpham_id' => $product->id, 'soluong' => $quantity, 'dongianhap' => $price]],
                     now()->toDateTimeString(),
                     'Nhập sản phẩm từ file Excel',
+                    false,
                 );
             }
         });

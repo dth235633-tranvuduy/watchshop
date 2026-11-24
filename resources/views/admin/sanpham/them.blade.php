@@ -31,12 +31,13 @@
 
                     <div class="row g-3">
                         <div class="col-md-6">
-                            <label for="dongia" class="form-label fw-semibold">Giá (đ)</label>
+                            <label for="dongia" class="form-label fw-semibold">Giá bán (đ)</label>
                             <input id="dongia" name="dongia" type="text" inputmode="numeric" data-thousands data-decimals="0" min="0" value="{{ old('dongia') }}"
                                    class="form-control form-control-lg rounded-3 @error('dongia') is-invalid @enderror" placeholder="0">
                             @error('dongia')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
+                            <div class="form-text">Đây là giá bán cho khách hàng. Về sau mỗi lần nhập kho bằng phiếu nhập, giá bán sẽ tự cập nhật = đơn giá nhập × 1,15 (gồm 10% VAT + 5% phí dịch vụ).</div>
                         </div>
                         <div class="col-md-6">
                             <label for="soluong" class="form-label fw-semibold">Số lượng</label>
