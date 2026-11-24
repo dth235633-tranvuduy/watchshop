@@ -40,7 +40,7 @@ class HangSanXuatController extends Controller
             'hinhanh' => $hinhanh,
         ]);
 
-        return redirect()->route('admin.hangsanxuat.danhsach')->with('success', 'Thêm hãng sản xuất thành công.');
+        return redirect()->route('admin.hangsanxuat.danhsach')->with('success', 'Thêm thương hiệu thành công.');
     }
 
     public function getSua(int $id)
@@ -68,7 +68,7 @@ class HangSanXuatController extends Controller
 
         $hangsanxuat->save();
 
-        return redirect()->route('admin.hangsanxuat.danhsach')->with('success', 'Cập nhật hãng sản xuất thành công.');
+        return redirect()->route('admin.hangsanxuat.danhsach')->with('success', 'Cập nhật thương hiệu thành công.');
     }
 
     public function getXoa(int $id)
@@ -96,7 +96,7 @@ class HangSanXuatController extends Controller
             return back()->with('error', 'Không đọc được file: '.$exception->getMessage());
         }
 
-        $message = "Đã nhập {$import->imported} hãng sản xuất.";
+        $message = "Đã nhập {$import->imported} thương hiệu.";
         if ($import->skipped > 0) {
             $message .= " Bỏ qua {$import->skipped} dòng trùng tên.";
         }

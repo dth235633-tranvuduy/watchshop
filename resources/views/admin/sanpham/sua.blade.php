@@ -25,7 +25,31 @@
                         @error('danhgia') <div class="invalid-feedback">{{ $message }}</div> @enderror
                     </div>
                     <div class="row">
-                        @foreach(['chatlieuday' => 'Chất liệu dây', 'matkinh' => 'Mặt kính', 'dochieunuoc' => 'Độ chịu nước'] as $field => $label)
+                        <div class="col-md-4 mb-3">
+                            <label for="chatlieuday" class="form-label">Chất liệu dây</label>
+                            <select name="chatlieuday" id="chatlieuday" class="form-select @error('chatlieuday') is-invalid @enderror">
+                                <option value="">-- Chọn chất liệu dây --</option>
+                                @foreach($chatlieuday as $item)
+                                    <option value="{{ $item->tenchatlieu }}" @selected(old('chatlieuday', $sanpham->chatlieuday) === $item->tenchatlieu)>
+                                        {{ $item->tenchatlieu }}
+                                    </option>
+                                @endforeach
+                            </select>
+                            @error('chatlieuday') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label for="phongcach" class="form-label">Phong cách</label>
+                            <select name="phongcach" id="phongcach" class="form-select @error('phongcach') is-invalid @enderror">
+                                <option value="">-- Chọn phong cách --</option>
+                                @foreach($phongcach as $item)
+                                    <option value="{{ $item->tenphongcach }}" @selected(old('phongcach', $sanpham->phongcach) === $item->tenphongcach)>
+                                        {{ $item->tenphongcach }}
+                                    </option>
+                                @endforeach
+                            </select>
+                            @error('phongcach') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                        </div>
+                        @foreach(['matkinh' => 'Mặt kính', 'dochieunuoc' => 'Độ chịu nước'] as $field => $label)
                             <div class="col-md-4 mb-3">
                                 <label for="{{ $field }}" class="form-label">{{ $label }}</label>
                                 <input type="text" name="{{ $field }}" id="{{ $field }}" value="{{ old($field, $sanpham->{$field}) }}" class="form-control @error($field) is-invalid @enderror">
@@ -34,7 +58,7 @@
                         @endforeach
                     </div>
                     <div class="mb-3">
-                        <label for="loaisanpham_id" class="form-label">Loại sản phẩm <span class="text-danger">*</span></label>
+                        <label for="loaisanpham_id" class="form-label">Loại máy <span class="text-danger">*</span></label>
                         <select name="loaisanpham_id" id="loaisanpham_id" class="form-select @error('loaisanpham_id') is-invalid @enderror" required>
                             <option value="">-- Chọn loại sản phẩm --</option>
                             @foreach($loaisanpham as $lsp)
@@ -47,7 +71,7 @@
                     </div>
 
                     <div class="mb-3">
-                        <label for="hangsanxuat_id" class="form-label">Hãng sản xuất <span class="text-danger">*</span></label>
+                        <label for="hangsanxuat_id" class="form-label">Thương hiệu <span class="text-danger">*</span></label>
                         <select name="hangsanxuat_id" id="hangsanxuat_id" class="form-select @error('hangsanxuat_id') is-invalid @enderror" required>
                             <option value="">-- Chọn hãng sản xuất --</option>
                             @foreach($hangsanxuat as $hsx)
@@ -69,7 +93,7 @@
 
                     <div class="mb-3">
                         <label for="soluong" class="form-label">Số lượng <span class="text-danger">*</span></label>
-                        <input type="number" name="soluong" id="soluong" class="form-control @error('soluong') is-invalid @enderror" value="{{ old('soluong') ?? $sanpham->soluong }}" min="0" required>
+                        <input type="text" inputmode="numeric" data-thousands data-decimals="0" name="soluong" id="soluong" class="form-control @error('soluong') is-invalid @enderror" value="{{ old('soluong') ?? $sanpham->soluong }}" min="0" required>
                         @error('soluong')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
@@ -77,7 +101,7 @@
 
                     <div class="mb-3">
                         <label for="dongia" class="form-label">Đơn giá <span class="text-danger">*</span></label>
-                        <input type="number" name="dongia" id="dongia" class="form-control @error('dongia') is-invalid @enderror" value="{{ old('dongia') ?? $sanpham->dongia }}" min="0" step="1000" required>
+                        <input type="text" inputmode="numeric" data-thousands data-decimals="0" name="dongia" id="dongia" class="form-control @error('dongia') is-invalid @enderror" value="{{ old('dongia') ?? $sanpham->dongia }}" min="0" step="1000" required>
                         @error('dongia')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
@@ -110,6 +134,7 @@
                     <div class="d-grid gap-2 d-md-flex justify-content-md-end">
                         <a href="{{ route('admin.sanpham.danhsach') }}" class="btn btn-secondary me-2">Hủy bỏ</a>
                         <button type="submit" class="btn btn-warning"><i class="fas fa-save me-1"></i>Cập nhật</button>
+                        <a href="{{ route('admin.sanpham.xoa', ['id' => $sanpham->id]) }}" class="btn btn-danger ms-2" onclick="return confirm('Bạn chắc chắn muốn xóa sản phẩm này?')"><i class="fas fa-trash me-1"></i>Xóa</a>
                     </div>
                 </form>
             </div>

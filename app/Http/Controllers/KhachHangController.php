@@ -195,6 +195,7 @@ class KhachHangController extends Controller
                 $chitiet = new DonHang_ChiTiet;
                 $chitiet->donhang_id = $donhang->id;
                 $chitiet->sanpham_id = $sanpham->id;
+                $chitiet->tensanpham_snapshot = $sanpham->tensanpham;
                 $chitiet->soluongban = $soluong;
                 $chitiet->dongiaban = round((float) $sanpham->dongia * (100 - (int) $sanpham->giamgia) / 100, 2);
                 $chitiet->save();
@@ -205,6 +206,7 @@ class KhachHangController extends Controller
             DB::commit();
             session()->forget('cart');
             session()->forget('voucher');
+            session()->flash('latest_order_id', $donhang->id);
 
             return redirect()->route('user.dathangthanhcong');
         } catch (Throwable $exception) {
@@ -221,7 +223,16 @@ class KhachHangController extends Controller
         session()->forget('cart');
         session()->forget('voucher');
 
-        return view('user.dathangthanhcong');
+        $orderId = session('latest_order_id');
+        $order = $orderId
+            ? DonHang::with('TinhTrang')->where('user_id', Auth::id())->find($orderId)
+            : DonHang::with('TinhTrang')
+                ->where('user_id', Auth::id())
+                ->where('phuongthucthanhtoan', 'bank')
+                ->latest('id')
+                ->first();
+
+        return view('user.dathangthanhcong', compact('order'));
     }
 
     public function postThanhToan(int $id)
@@ -268,22 +279,48 @@ class KhachHangController extends Controller
         return back()->with('success', 'Thanh toán thành công.');
     }
 
-    public function postHuyDon(int $id)
+    public function postHuyDon(Request $request, int $id)
     {
-        DB::transaction(function () use ($id): void {
-            $order = DonHang::where('user_id', Auth::id())->lockForUpdate()->findOrFail($id);
-            if ($order->TinhTrang?->tinhtrang === 'Đã thanh toán') {
-                abort(422, 'Đơn hàng đã thanh toán không thể hủy.');
+        $validated = $request->validate([
+            'lydo_huy' => ['required', 'string', 'max:1000'],
+        ]);
+
+        try {
+            DB::transaction(function () use ($id, $validated): void {
+                $order = DonHang::where('user_id', Auth::id())
+                    ->with('TinhTrang')
+                    ->with('DonHang_ChiTiet')
+                    ->lockForUpdate()
+                    ->findOrFail($id);
+
+                if ($order->TinhTrang?->tinhtrang === 'Đã thanh toán') {
+                    abort(422, 'Đơn hàng đã thanh toán không thể hủy.');
+                }
+                if ($order->TinhTrang?->tinhtrang === 'Đã hủy') {
+                    return;
+                }
+
+                $cancelledStatus = TinhTrang::firstOrCreate(['tinhtrang' => 'Đã hủy']);
+                foreach ($order->DonHang_ChiTiet as $detail) {
+                    SanPham::whereKey($detail->sanpham_id)
+                        ->lockForUpdate()
+                        ->increment('soluong', $detail->soluongban);
+                }
+
+                $order->update([
+                    'tinhtrang_id' => $cancelledStatus->id,
+                    'lydo_huy' => trim($validated['lydo_huy']),
+                ]);
+            });
+        } catch (Throwable $exception) {
+            if ($exception instanceof HttpExceptionInterface) {
+                return back()->with('error', $exception->getMessage());
             }
-            if ($order->TinhTrang?->tinhtrang === 'Đã hủy') {
-                return;
-            }
-            $cancelledStatus = TinhTrang::firstOrCreate(['tinhtrang' => 'Đã hủy']);
-            foreach ($order->DonHang_ChiTiet as $detail) {
-                SanPham::whereKey($detail->sanpham_id)->lockForUpdate()->increment('soluong', $detail->soluongban);
-            }
-            $order->update(['tinhtrang_id' => $cancelledStatus->id]);
-        });
+
+            report($exception);
+
+            return back()->with('error', 'Hủy đơn hàng không thành công. Vui lòng thử lại.');
+        }
 
         return back()->with('success', 'Đã hủy đơn hàng và hoàn lại tồn kho.');
     }

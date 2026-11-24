@@ -3,7 +3,7 @@
 @section('content')
     <div class="container mt-4">
         <div class="d-flex justify-content-between align-items-center mb-4">
-            <h2><i class="fas fa-edit me-2"></i>Sửa Hãng Sản Xuất</h2>
+            <h2><i class="fas fa-edit me-2"></i>Sửa Thương Hiệu</h2>
             <a href="{{ route('admin.hangsanxuat.danhsach') }}" class="btn btn-secondary">
                 <i class="fas fa-arrow-left me-1"></i>Quay lại
             </a>
@@ -14,9 +14,9 @@
                 <form method="POST" action="{{ route('admin.hangsanxuat.postsua', ['id' => $hangsanxuat->id]) }}" enctype="multipart/form-data">
                     @csrf
                     <div class="mb-3">
-                        <label for="tenhang" class="form-label">Tên hãng <span class="text-danger">*</span></label>
+                        <label for="tenhang" class="form-label">Tên thương hiệu <span class="text-danger">*</span></label>
                         <input type="text" name="tenhang" id="tenhang" class="form-control @error('tenhang') is-invalid @enderror" 
-                               value="{{ old('tenhang') ?? $hangsanxuat->tenhang }}" placeholder="Nhập tên hãng sản xuất" required>
+                               value="{{ old('tenhang') ?? $hangsanxuat->tenhang }}" placeholder="Nhập tên thương hiệu" required>
                         @error('tenhang')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
@@ -26,7 +26,12 @@
                     <div class="mb-3">
                         <label class="form-label">Hình ảnh hiện tại</label>
                         <div class="mb-2">
-                            <img src="{{ route('frontend.hinhanh', ['path' => $hangsanxuat->hinhanh]) }}" alt="{{ $hangsanxuat->tenhang }}" 
+                            @php
+                                $brandImage = str_starts_with($hangsanxuat->hinhanh, 'http')
+                                    ? $hangsanxuat->hinhanh
+                                    : route('frontend.hinhanh', ['path' => $hangsanxuat->hinhanh]);
+                            @endphp
+                            <img src="{{ $brandImage }}" alt="{{ $hangsanxuat->tenhang }}"
                                  class="img-thumbnail" style="width: 100px; height: 100px; object-fit: cover;">
                         </div>
                     </div>

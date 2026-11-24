@@ -42,7 +42,7 @@
                     <div class="row g-3">
                         <div class="col-md-6">
                             <label class="form-label fw-semibold">Thứ tự hiển thị</label>
-                            <input type="number" name="thu_tu" class="form-control" min="0"
+                            <input type="text" inputmode="numeric" data-thousands data-decimals="0" name="thu_tu" class="form-control" min="0"
                                    value="{{ old('thu_tu', $banner->thu_tu ?? 0) }}">
                         </div>
                         <div class="col-md-6 d-flex align-items-end">

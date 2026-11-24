@@ -3,7 +3,7 @@
 @section('content')
     <div class="container mt-4">
         <div class="d-flex justify-content-between align-items-center mb-4">
-            <h2><i class="fas fa-building me-2"></i>Danh sách Hãng Sản Xuất</h2>
+            <h2><i class="fas fa-copyright me-2"></i>Danh sách Thương hiệu</h2>
             <div class="d-flex align-items-center gap-2">
                 <button type="button" class="btn btn-outline-gold px-4 py-2" data-bs-toggle="modal" data-bs-target="#importModal">
                     <i class="fas fa-file-import me-1"></i>Nhập file Excel
@@ -20,7 +20,7 @@
                     <form method="POST" action="{{ route('admin.hangsanxuat.nhap') }}" enctype="multipart/form-data">
                         @csrf
                         <div class="modal-header">
-                            <h5 class="modal-title" id="importModalLabel">Nhập hãng sản xuất từ Excel</h5>
+                            <h5 class="modal-title" id="importModalLabel">Nhập thương hiệu từ Excel</h5>
                             <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                         </div>
                         <div class="modal-body">
@@ -56,7 +56,12 @@
                         <td class="text-center">{{ $stt++ }}</td>
                         <td class="text-center">
                             @if(!empty($value->hinhanh))
-                                <img src="{{ route('frontend.hinhanh', ['path' => $value->hinhanh]) }}" alt="{{ $value->tenhang }}" 
+                                @php
+                                    $brandImage = str_starts_with($value->hinhanh, 'http')
+                                        ? $value->hinhanh
+                                        : route('frontend.hinhanh', ['path' => $value->hinhanh]);
+                                @endphp
+                                <img src="{{ $brandImage }}" alt="{{ $value->tenhang }}"
                                      class="img-thumbnail" style="width: 60px; height: 60px; object-fit: cover;">
                             @else
                                 <span class="text-muted small">Không có ảnh</span>

@@ -68,6 +68,43 @@
                             @error('phuongthucthanhtoan')<div class="text-danger small mt-1">{{ $message }}</div>@enderror
                         </fieldset>
 
+                        @php
+                            $bank = config('payment.bank');
+                            $bankQrUrl = $bank['account_no']
+                                ? 'https://img.vietqr.io/image/' . urlencode($bank['bank_id']) . '-' . urlencode($bank['account_no']) . '-' . urlencode($bank['template']) . '.png?'
+                                    . 'amount=' . (int) round($total)
+                                    . '&addInfo=' . urlencode('Thanh toan don hang')
+                                    . '&accountName=' . urlencode($bank['account_name'])
+                                : null;
+                        @endphp
+                        <div id="bank-payment-panel" class="border rounded-3 p-3 mb-4 d-none">
+                            <div class="row align-items-center g-3">
+                                <div class="col-sm-5 text-center">
+                                    @if($bankQrUrl)
+                                        <img src="{{ $bankQrUrl }}" alt="Mã QR thanh toán VietQR"
+                                             class="img-fluid rounded border bg-white"
+                                             style="max-width:240px;">
+                                    @else
+                                        <div class="alert alert-warning mb-0">Chưa cấu hình tài khoản ngân hàng.</div>
+                                    @endif
+                                </div>
+                                <div class="col-sm-7">
+                                    <h6 class="fw-bold mb-2">Quét mã để chuyển khoản</h6>
+                                    @if($bank['account_no'])
+                                        <p class="mb-1"><strong>Ngân hàng:</strong> {{ $bank['bank_id'] }}</p>
+                                        <p class="mb-1"><strong>Số tài khoản:</strong> {{ $bank['account_no'] }}</p>
+                                        @if($bank['account_name'])
+                                            <p class="mb-1"><strong>Chủ tài khoản:</strong> {{ $bank['account_name'] }}</p>
+                                        @endif
+                                    @endif
+                                    <p class="mb-0"><strong>Số tiền:</strong>
+                                        <span class="text-gold fs-5">{{ number_format($total, 0, ',', '.') }} đ</span>
+                                    </p>
+                                    <small class="text-muted">Nội dung: Thanh toán đơn hàng</small>
+                                </div>
+                            </div>
+                        </div>
+
                         <div class="d-flex flex-wrap gap-2">
                             <button type="submit" class="btn btn-gold">
                                 <i class="fas fa-check me-1"></i>Đặt hàng
@@ -125,3 +162,22 @@
     </div>
 </div>
 @endsection
+
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const bankPanel = document.getElementById('bank-payment-panel');
+    const paymentInputs = document.querySelectorAll('input[name="phuongthucthanhtoan"]');
+
+    function toggleBankPanel() {
+        const selected = document.querySelector('input[name="phuongthucthanhtoan"]:checked');
+        bankPanel?.classList.toggle('d-none', !selected || selected.value !== 'bank');
+    }
+
+    paymentInputs.forEach(function (input) {
+        input.addEventListener('change', toggleBankPanel);
+    });
+    toggleBankPanel();
+});
+</script>
+@endpush

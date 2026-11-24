@@ -9,7 +9,7 @@ class ChiTietPhieuNhap extends Model
 {
     protected $table = 'chitietphieunhap';
 
-    protected $fillable = ['phieunhap_id', 'sanpham_id', 'soluong', 'dongianhap'];
+    protected $fillable = ['phieunhap_id', 'sanpham_id', 'tensanpham_snapshot', 'soluong', 'dongianhap'];
 
     protected function casts(): array
     {

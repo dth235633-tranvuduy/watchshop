@@ -2,8 +2,8 @@
 
 namespace Database\Seeders;
 
-use App\Models\User;
 use App\Models\TinhTrang;
+use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
@@ -28,5 +28,10 @@ class DatabaseSeeder extends Seeder
         }
 
         $this->call(ImportFromDhdaSeeder::class);
+        $this->call(ImportBrandLogosSeeder::class);
+        $this->call(RemoveImageLessBrandsSeeder::class);
+        $this->call(ImportWatchMachineTypesSeeder::class);
+        $this->call(WatchProductAttributesSeeder::class);
+        $this->call(ImportMensWatchSampleSeeder::class);
     }
 }

@@ -3,8 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Imports\SanPhamImport;
+use App\Models\ChatLieuDay;
 use App\Models\HangSanXuat;
 use App\Models\LoaiSanPham;
+use App\Models\PhongCach;
 use App\Models\SanPham;
 use App\Services\StockReceiptService;
 use Illuminate\Http\RedirectResponse;
@@ -31,12 +33,19 @@ class SanPhamController extends Controller
     {
         $loaisanpham = LoaiSanPham::all();
         $hangsanxuat = HangSanXuat::all();
+        $chatlieuday = ChatLieuDay::orderBy('tenchatlieu')->get();
+        $phongcach = PhongCach::orderBy('tenphongcach')->get();
 
-        return view('admin.sanpham.them', compact('loaisanpham', 'hangsanxuat'));
+        return view('admin.sanpham.them', compact('loaisanpham', 'hangsanxuat', 'chatlieuday', 'phongcach'));
     }
 
     public function postThem(Request $request)
     {
+        $request->merge([
+            'soluong' => str_replace('.', '', $request->input('soluong', '')),
+            'dongia' => str_replace('.', '', $request->input('dongia', '')),
+        ]);
+
         $request->validate([
             'loaisanpham_id' => 'required|exists:loaisanpham,id',
             'hangsanxuat_id' => 'required|exists:hangsanxuat,id',
@@ -47,6 +56,7 @@ class SanPhamController extends Controller
             'giamgia' => ['required', 'integer', 'between:0,100'],
             'danhgia' => ['required', 'numeric', 'between:0,5'],
             'chatlieuday' => ['nullable', 'string', 'max:255'],
+            'phongcach' => ['nullable', 'string', 'max:255'],
             'matkinh' => ['nullable', 'string', 'max:255'],
             'dochieunuoc' => ['nullable', 'string', 'max:255'],
         ]);
@@ -69,6 +79,7 @@ class SanPhamController extends Controller
             'giamgia' => $request->giamgia,
             'danhgia' => $request->danhgia,
             'chatlieuday' => $request->chatlieuday,
+            'phongcach' => $request->phongcach,
             'matkinh' => $request->matkinh,
             'dochieunuoc' => $request->dochieunuoc,
         ]);
@@ -81,13 +92,20 @@ class SanPhamController extends Controller
         $sanpham = SanPham::findOrFail($id);
         $loaisanpham = LoaiSanPham::all();
         $hangsanxuat = HangSanXuat::all();
+        $chatlieuday = ChatLieuDay::orderBy('tenchatlieu')->get();
+        $phongcach = PhongCach::orderBy('tenphongcach')->get();
 
-        return view('admin.sanpham.sua', compact('sanpham', 'loaisanpham', 'hangsanxuat'));
+        return view('admin.sanpham.sua', compact('sanpham', 'loaisanpham', 'hangsanxuat', 'chatlieuday', 'phongcach'));
     }
 
     public function postSua(Request $request, int $id)
     {
         $sanpham = SanPham::findOrFail($id);
+
+        $request->merge([
+            'soluong' => str_replace('.', '', $request->input('soluong', '')),
+            'dongia' => str_replace('.', '', $request->input('dongia', '')),
+        ]);
 
         $request->validate([
             'loaisanpham_id' => 'required|exists:loaisanpham,id',
@@ -99,6 +117,7 @@ class SanPhamController extends Controller
             'giamgia' => ['required', 'integer', 'between:0,100'],
             'danhgia' => ['required', 'numeric', 'between:0,5'],
             'chatlieuday' => ['nullable', 'string', 'max:255'],
+            'phongcach' => ['nullable', 'string', 'max:255'],
             'matkinh' => ['nullable', 'string', 'max:255'],
             'dochieunuoc' => ['nullable', 'string', 'max:255'],
         ]);
@@ -113,6 +132,7 @@ class SanPhamController extends Controller
         $sanpham->giamgia = $request->giamgia;
         $sanpham->danhgia = $request->danhgia;
         $sanpham->chatlieuday = $request->chatlieuday;
+        $sanpham->phongcach = $request->phongcach;
         $sanpham->matkinh = $request->matkinh;
         $sanpham->dochieunuoc = $request->dochieunuoc;
 
@@ -159,8 +179,8 @@ class SanPhamController extends Controller
 
         $headers = [
             'Tên sản phẩm',
-            'Loại sản phẩm',
-            'Hãng sản xuất',
+            'Loại máy',
+            'Thương hiệu',
             'Số lượng',
             'Đơn giá',
             'Giảm giá (%)',

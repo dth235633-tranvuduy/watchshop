@@ -109,6 +109,54 @@
             color: var(--ws-gold);
             padding-left: 18px;
         }
+        .ws-nav .mega-dropdown {
+            width: min(980px, calc(100vw - 32px));
+            max-height: 520px;
+            overflow-y: auto;
+            left: 0;
+            right: auto;
+            padding: 12px;
+            border-radius: 12px;
+            background: rgba(24,24,24,.98);
+            border: 1px solid rgba(255,255,255,.12);
+            color: #fff;
+        }
+        .ws-nav .mega-dropdown .mega-grid {
+            display: grid;
+            grid-template-columns: repeat(5, minmax(0, 1fr));
+            gap: 8px;
+        }
+        .ws-nav .mega-column {
+            min-width: 0;
+            border-right: 1px solid rgba(255,255,255,.18);
+            padding-right: 8px;
+        }
+        .ws-nav .mega-column:last-child {
+            border-right: 0;
+            padding-right: 0;
+        }
+        .ws-nav .mega-title {
+            color: #d7c9a6;
+            text-transform: uppercase;
+            letter-spacing: .08em;
+            font-size: .68rem;
+            font-weight: 800;
+            border-bottom: 1px solid rgba(255,255,255,.22);
+            margin: 0 3px 5px;
+            padding: 3px 0 7px;
+        }
+        .ws-nav .mega-dropdown .dropdown-item {
+            color: #f4f4f4;
+            font-size: .76rem;
+            line-height: 1.25;
+            padding: 4px 5px;
+            white-space: normal;
+        }
+        .ws-nav .mega-dropdown .dropdown-item:hover {
+            background: rgba(201,162,39,.12);
+            color: var(--ws-gold-light);
+            padding-left: 8px;
+        }
 
         /* Product cards */
         .product-card { border: 1px solid transparent; border-radius: 0; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,.06); transition: transform .25s, box-shadow .25s, border-color .25s; }
@@ -146,6 +194,15 @@
         @media (max-width: 991px) {
             body { padding-top: 111px; }
             .ws-header { top: 0 !important; }
+            .ws-nav .mega-dropdown {
+                width: 100%;
+                max-height: 55vh;
+                overflow-y: auto;
+                padding: 8px;
+            }
+            .ws-nav .mega-dropdown .mega-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
         }
     </style>
 </head>
@@ -153,6 +210,8 @@
     @php
         $loaisanpham = App\Models\LoaiSanPham::all();
         $hangsanxuatMenu = App\Models\HangSanXuat::all();
+        $chatlieudayMenu = App\Models\ChatLieuDay::orderBy('tenchatlieu')->get();
+        $phongcachMenu = App\Models\PhongCach::orderBy('tenphongcach')->get();
         $cart = session('cart', []);
         $cartTotal = collect($cart)->sum(fn (array $item): float => $item['price'] * $item['qty']);
         $cartQuantity = collect($cart)->sum(fn (array $item): int => (int) $item['qty']);
@@ -223,12 +282,44 @@
                     <li class="nav-item"><a class="nav-link {{ request()->routeIs('frontend.home') ? 'active' : '' }}" href="{{ route('frontend.home') }}">Trang chủ</a></li>
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle {{ request()->routeIs('frontend.sanpham*') ? 'active' : '' }}" href="#" data-bs-toggle="dropdown">Danh mục</a>
-                        <ul class="dropdown-menu">
-                            <li><a class="dropdown-item" href="{{ route('frontend.sanpham') }}"><i class="fas fa-layer-group me-2" style="color:var(--ws-gold);"></i>Tất cả sản phẩm</a></li>
-                            <li><hr class="dropdown-divider"></li>
-                            @foreach($loaisanpham as $lsp)
-                                <li><a class="dropdown-item" href="{{ route('frontend.sanpham.phanloai', $lsp->tenloai_slug) }}"><i class="fas fa-angle-right me-2" style="color:var(--ws-muted);"></i>{{ $lsp->tenloai }}</a></li>
-                            @endforeach
+                        <ul class="dropdown-menu mega-dropdown">
+                            <li class="mega-grid">
+                                <div class="mega-column">
+                                    <div class="mega-title">Thương hiệu</div>
+                                    <a class="dropdown-item" href="{{ route('frontend.sanpham') }}">Tất cả thương hiệu</a>
+                                    @foreach($hangsanxuatMenu as $hsx)
+                                        <a class="dropdown-item" href="{{ route('frontend.sanpham', ['hangsanxuat_id' => $hsx->id]) }}">{{ $hsx->tenhang }}</a>
+                                    @endforeach
+                                </div>
+                                <div class="mega-column">
+                                    <div class="mega-title">Mức giá</div>
+                                    <a class="dropdown-item" href="{{ route('frontend.sanpham', ['price_max' => 2000000]) }}">Dưới 2 triệu</a>
+                                    <a class="dropdown-item" href="{{ route('frontend.sanpham', ['price_min' => 2000000, 'price_max' => 5000000]) }}">Từ 2 triệu đến 5 triệu</a>
+                                    <a class="dropdown-item" href="{{ route('frontend.sanpham', ['price_min' => 5000000, 'price_max' => 10000000]) }}">Từ 5 triệu đến 10 triệu</a>
+                                    <a class="dropdown-item" href="{{ route('frontend.sanpham', ['price_min' => 10000000, 'price_max' => 20000000]) }}">Từ 10 triệu đến 20 triệu</a>
+                                    <a class="dropdown-item" href="{{ route('frontend.sanpham', ['price_min' => 20000000, 'price_max' => 50000000]) }}">Từ 20 triệu đến 50 triệu</a>
+                                    <a class="dropdown-item" href="{{ route('frontend.sanpham', ['price_min' => 50000000]) }}">Trên 50 triệu</a>
+                                </div>
+                                <div class="mega-column">
+                                    <div class="mega-title">Loại máy</div>
+                                    <a class="dropdown-item" href="{{ route('frontend.sanpham') }}">Tất cả loại máy</a>
+                                    @foreach($loaisanpham as $lsp)
+                                        <a class="dropdown-item" href="{{ route('frontend.sanpham.phanloai', $lsp->tenloai_slug) }}">{{ $lsp->tenloai }}</a>
+                                    @endforeach
+                                </div>
+                                <div class="mega-column">
+                                    <div class="mega-title">Chất liệu dây</div>
+                                    @foreach($chatlieudayMenu as $item)
+                                        <a class="dropdown-item" href="{{ route('frontend.sanpham', ['chatlieuday' => $item->tenchatlieu]) }}">{{ $item->tenchatlieu }}</a>
+                                    @endforeach
+                                </div>
+                                <div class="mega-column">
+                                    <div class="mega-title">Phong cách</div>
+                                    @foreach($phongcachMenu as $item)
+                                        <a class="dropdown-item" href="{{ route('frontend.sanpham', ['phongcach' => $item->tenphongcach]) }}">{{ $item->tenphongcach }}</a>
+                                    @endforeach
+                                </div>
+                            </li>
                         </ul>
                     </li>
                     <li class="nav-item dropdown">
@@ -358,6 +449,52 @@
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+    document.addEventListener('DOMContentLoaded', function () {
+        window.watchShopInitGroupedNumbers = function (root) {
+            (root || document).querySelectorAll('[data-thousands]').forEach(function (input) {
+                var decimals = parseInt(input.dataset.decimals || '0', 10);
+                function formatInteger(value) {
+                    var digits = String(value || '').replace(/\D/g, '');
+                    return digits.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+                }
+                function formatInput() {
+                    if (!decimals) {
+                        input.value = formatInteger(input.value);
+                        return;
+                    }
+                    var value = input.value.replace(/\./g, '');
+                    var parts = value.split(',');
+                    var integer = formatInteger(parts[0]);
+                    var fraction = (parts[1] || '').replace(/\D/g, '').slice(0, decimals);
+                    input.value = integer + (parts.length > 1 ? ',' + fraction : '');
+                }
+                if (!input.dataset.groupedInitialized) {
+                    input.dataset.groupedInitialized = '1';
+                    if (decimals && input.value && input.value.indexOf(',') === -1 && input.value.indexOf('.') !== -1) {
+                        var decimalParts = input.value.split('.');
+                        input.value = formatInteger(decimalParts[0]) + (decimalParts[1] ? ',' + decimalParts[1] : '');
+                    } else if (input.value) {
+                        formatInput();
+                    }
+                    input.addEventListener('input', formatInput);
+                    input.addEventListener('blur', formatInput);
+                }
+            });
+        };
+        window.watchShopInitGroupedNumbers();
+        document.querySelectorAll('form').forEach(function (form) {
+            form.addEventListener('submit', function () {
+                form.querySelectorAll('[data-thousands]').forEach(function (input) {
+                    var decimals = parseInt(input.dataset.decimals || '0', 10);
+                    input.value = decimals
+                        ? input.value.replace(/\./g, '').replace(',', '.')
+                        : input.value.replace(/\./g, '');
+                });
+            });
+        });
+    });
+    </script>
     @stack('scripts')
 </body>
 </html>

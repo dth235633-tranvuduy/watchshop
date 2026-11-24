@@ -64,14 +64,14 @@
                     <li class="mb-1">Tải <a href="{{ route('admin.sanpham.mau') }}">file mẫu</a> để có đúng tên cột.</li>
                     <li class="mb-1">Dòng đầu tiên là tiêu đề, dữ liệu bắt đầu từ dòng thứ hai.</li>
                     <li class="mb-1">Cột <strong>Tên sản phẩm</strong> là bắt buộc.</li>
-                    <li class="mb-1">Cột <strong>Loại sản phẩm</strong> và <strong>Hãng sản xuất</strong> phải khớp tên đã có trong hệ thống.</li>
+                    <li class="mb-1">Cột <strong>Loại máy</strong> và <strong>Thương hiệu</strong> phải khớp tên đã có trong hệ thống.</li>
                     <li class="mb-1">Sản phẩm trùng tên sẽ được bỏ qua, không ghi đè.</li>
                     <li>Hình ảnh để trống, có thể cập nhật sau khi sửa sản phẩm.</li>
                 </ol>
 
                 <p class="fw-semibold mb-2">Các cột được hỗ trợ</p>
                 <div class="d-flex flex-wrap gap-1">
-                    @foreach(['Tên sản phẩm', 'Loại sản phẩm', 'Hãng sản xuất', 'Số lượng', 'Đơn giá', 'Giảm giá (%)', 'Đánh giá', 'Mô tả', 'Chất liệu dây', 'Mặt kính', 'Độ chịu nước'] as $column)
+                    @foreach(['Tên sản phẩm', 'Loại máy', 'Thương hiệu', 'Số lượng', 'Đơn giá', 'Giảm giá (%)', 'Đánh giá', 'Mô tả', 'Chất liệu dây', 'Mặt kính', 'Độ chịu nước'] as $column)
                         <span class="badge bg-gold-soft rounded-pill">{{ $column }}</span>
                     @endforeach
                 </div>

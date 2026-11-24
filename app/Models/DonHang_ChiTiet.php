@@ -9,6 +9,14 @@ class DonHang_ChiTiet extends Model
 {
     protected $table = 'donhang_chitiet';
 
+    protected $fillable = [
+        'donhang_id',
+        'sanpham_id',
+        'tensanpham_snapshot',
+        'soluongban',
+        'dongiaban',
+    ];
+
     public function DonHang(): BelongsTo
     {
         return $this->belongsTo(DonHang::class, 'donhang_id');

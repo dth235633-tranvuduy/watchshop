@@ -6,6 +6,7 @@ use App\Models\Banner;
 use App\Models\DanhGia;
 use App\Models\HangSanXuat;
 use App\Models\LoaiSanPham;
+use App\Models\PhongCach;
 use App\Models\SanPham;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -61,22 +62,36 @@ class HomeController extends Controller
             $query->where('dongia', '<=', $priceMax);
         }
 
+        $chatlieuday = trim((string) $request->query('chatlieuday', ''));
+        if ($chatlieuday !== '') {
+            $query->where('chatlieuday', $chatlieuday);
+        }
+
+        $phongcach = trim((string) $request->query('phongcach', ''));
+        if ($phongcach !== '') {
+            $query->where('phongcach', $phongcach);
+        }
+
         $sanpham = $query->orderByRaw("CASE WHEN hinhanh IS NULL OR hinhanh = '' THEN 1 ELSE 0 END")
             ->latest()
             ->paginate(12)
             ->withQueryString();
         $loaisanpham = LoaiSanPham::all();
         $hangsanxuat = HangSanXuat::all();
+        $phongcachList = PhongCach::orderBy('tenphongcach')->get();
 
         return view('frontend.sanpham', [
             'sanpham' => $sanpham,
             'loaisanpham' => $loaisanpham,
             'hangsanxuat' => $hangsanxuat,
+            'phongcach' => $phongcachList,
             'search' => $search,
             'tenloai_slug' => $categorySlug,
             'hangsanxuatId' => $hangsanxuatId,
             'priceMin' => $priceMin,
             'priceMax' => $priceMax,
+            'chatlieudayFilter' => $chatlieuday,
+            'phongcachFilter' => $phongcach,
         ]);
     }
 

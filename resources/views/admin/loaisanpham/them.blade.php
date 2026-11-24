@@ -3,7 +3,7 @@
 @section('content')
     <div class="container mt-4">
         <div class="d-flex justify-content-between align-items-center mb-4">
-            <h2><i class="fas fa-plus me-2"></i>Thêm Thương Hiệu Mới</h2>
+            <h2><i class="fas fa-plus me-2"></i>Thêm Loại Máy Mới</h2>
             <a href="{{ route('admin.loaisanpham.danhsach') }}" class="btn btn-secondary">
                 <i class="fas fa-arrow-left me-1"></i>Quay lại
             </a>
@@ -14,9 +14,9 @@
                 <form method="POST" action="{{ route('admin.loaisanpham.postthem') }}">
                     @csrf
                     <div class="mb-3">
-                        <label for="tenloai" class="form-label">Tên thương hiệu <span class="text-danger">*</span></label>
+                        <label for="tenloai" class="form-label">Tên loại máy <span class="text-danger">*</span></label>
                         <input type="text" name="tenloai" id="tenloai" class="form-control @error('tenloai') is-invalid @enderror" 
-                               value="{{ old('tenloai') }}" placeholder="Nhập tên thương hiệu" required>
+                               value="{{ old('tenloai') }}" placeholder="Nhập tên loại máy" required>
                         @error('tenloai')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror

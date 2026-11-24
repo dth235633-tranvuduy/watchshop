@@ -31,23 +31,23 @@
 
                     <div class="row g-3">
                         <div class="col-md-6">
-                            <label for="gia" class="form-label fw-semibold">Giá (đ)</label>
-                            <input id="gia" name="gia" type="number" min="0" value="{{ old('gia') }}"
-                                   class="form-control form-control-lg rounded-3 @error('gia') is-invalid @enderror" placeholder="0">
-                            @error('gia')
+                            <label for="dongia" class="form-label fw-semibold">Giá (đ)</label>
+                            <input id="dongia" name="dongia" type="text" inputmode="numeric" data-thousands data-decimals="0" min="0" value="{{ old('dongia') }}"
+                                   class="form-control form-control-lg rounded-3 @error('dongia') is-invalid @enderror" placeholder="0">
+                            @error('dongia')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
                         <div class="col-md-6">
                             <label for="soluong" class="form-label fw-semibold">Số lượng</label>
-                            <input id="soluong" name="soluong" type="number" min="0" value="{{ old('soluong', 0) }}"
+                            <input id="soluong" name="soluong" type="text" inputmode="numeric" data-thousands data-decimals="0" min="0" value="{{ old('soluong', 0) }}"
                                    class="form-control form-control-lg rounded-3 @error('soluong') is-invalid @enderror">
                             @error('soluong')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
                         <div class="col-md-6">
-                            <label for="loaisanpham_id" class="form-label fw-semibold">Loại sản phẩm</label>
+                            <label for="loaisanpham_id" class="form-label fw-semibold">Loại máy</label>
                             <select id="loaisanpham_id" name="loaisanpham_id"
                                     class="form-select form-select-lg rounded-3 @error('loaisanpham_id') is-invalid @enderror">
                                 <option value="">-- Chọn loại --</option>
@@ -60,7 +60,7 @@
                             @enderror
                         </div>
                         <div class="col-md-6">
-                            <label for="hangsanxuat_id" class="form-label fw-semibold">Hãng sản xuất</label>
+                            <label for="hangsanxuat_id" class="form-label fw-semibold">Thương hiệu</label>
                             <select id="hangsanxuat_id" name="hangsanxuat_id"
                                     class="form-select form-select-lg rounded-3 @error('hangsanxuat_id') is-invalid @enderror">
                                 <option value="">-- Chọn hãng --</option>
@@ -71,6 +71,38 @@
                             @error('hangsanxuat_id')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
+                        </div>
+                        <div class="col-md-6">
+                            <label for="chatlieuday" class="form-label fw-semibold">Chất liệu dây</label>
+                            <select id="chatlieuday" name="chatlieuday" class="form-select form-select-lg rounded-3">
+                                <option value="">-- Chọn chất liệu dây --</option>
+                                @foreach($chatlieuday as $item)
+                                    <option value="{{ $item->tenchatlieu }}" @selected(old('chatlieuday') === $item->tenchatlieu)>
+                                        {{ $item->tenchatlieu }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="phongcach" class="form-label fw-semibold">Phong cách</label>
+                            <select id="phongcach" name="phongcach" class="form-select form-select-lg rounded-3">
+                                <option value="">-- Chọn phong cách --</option>
+                                @foreach($phongcach as $item)
+                                    <option value="{{ $item->tenphongcach }}" @selected(old('phongcach') === $item->tenphongcach)>
+                                        {{ $item->tenphongcach }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="matkinh" class="form-label fw-semibold">Mặt kính</label>
+                            <input id="matkinh" name="matkinh" type="text" value="{{ old('matkinh') }}"
+                                   class="form-control form-control-lg rounded-3" placeholder="VD: Sapphire">
+                        </div>
+                        <div class="col-md-6">
+                            <label for="dochieunuoc" class="form-label fw-semibold">Độ chịu nước</label>
+                            <input id="dochieunuoc" name="dochieunuoc" type="text" value="{{ old('dochieunuoc') }}"
+                                   class="form-control form-control-lg rounded-3" placeholder="VD: 300m">
                         </div>
                     </div>
 

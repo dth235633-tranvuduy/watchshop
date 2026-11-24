@@ -1,11 +1,11 @@
 @extends('layouts.app')
 
-@section('title', 'Thương hiệu - Watch Shop Admin')
+@section('title', 'Loại máy - Watch Shop Admin')
 
 @section('content')
 <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4">
     <h2 class="mb-0" style="font-family:'Playfair Display',serif; font-weight:800;">
-        <i class="fas fa-copyright me-2" style="color:var(--ws-gold);"></i>Danh sách Thương hiệu
+        <i class="fas fa-gears me-2" style="color:var(--ws-gold);"></i>Danh sách Loại máy
     </h2>
     <div class="d-flex gap-2">
         <button type="button" class="btn btn-outline-gold px-4 py-2" data-bs-toggle="modal" data-bs-target="#importLoaiModal">
@@ -23,13 +23,13 @@
             <form method="POST" action="{{ route('admin.loaisanpham.nhap') }}" enctype="multipart/form-data">
                 @csrf
                 <div class="modal-header">
-                    <h5 class="modal-title" id="importLoaiModalLabel">Nhập thương hiệu từ Excel</h5>
+                    <h5 class="modal-title" id="importLoaiModalLabel">Nhập loại máy từ Excel</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
                     <label for="loaiExcelFile" class="form-label fw-semibold">Chọn file XLSX hoặc XLS</label>
                     <input id="loaiExcelFile" name="file" type="file" accept=".xlsx,.xls" class="form-control" required>
-                    <div class="form-text">Cột bắt buộc: <strong>Tên thương hiệu</strong>. Có thể dùng tên cột <strong>tenloai</strong>, <strong>Tên thương hiệu</strong> hoặc <strong>Brand</strong>.</div>
+                    <div class="form-text">Cột bắt buộc: <strong>Tên loại máy</strong>. Có thể dùng tên cột <strong>tenloai</strong>, <strong>Tên loại máy</strong> hoặc <strong>Machine type</strong>.</div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Hủy</button>
@@ -46,8 +46,8 @@
             <thead>
                 <tr>
                     <th class="text-center ps-4" style="width: 60px;">#</th>
-                    <th>Tên thương hiệu</th>
-                    <th>Tên thương hiệu không dấu</th>
+                    <th>Tên loại máy</th>
+                    <th>Tên loại máy không dấu</th>
                     <th class="text-center" style="width: 110px;">Sửa</th>
                     <th class="text-center pe-4" style="width: 110px;">Xóa</th>
                 </tr>

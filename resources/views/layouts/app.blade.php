@@ -371,16 +371,19 @@
                         <div class="sidebar-section-title">Quản trị dữ liệu</div>
                         <ul class="navbar-nav">
                             <li class="nav-item">
-                                <a class="nav-link {{ request()->routeIs('admin.loaisanpham.*') ? 'active' : '' }}" href="{{ route('admin.loaisanpham.danhsach') }}"><i class="fas fa-copyright"></i>Thương hiệu</a>
+                                <a class="nav-link {{ request()->routeIs('admin.loaisanpham.*') ? 'active' : '' }}" href="{{ route('admin.loaisanpham.danhsach') }}"><i class="fas fa-gears"></i>Loại máy</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link {{ request()->routeIs('admin.hangsanxuat.*') ? 'active' : '' }}" href="{{ route('admin.hangsanxuat.danhsach') }}"><i class="fas fa-building"></i>Hãng sản xuất</a>
+                                <a class="nav-link {{ request()->routeIs('admin.hangsanxuat.*') ? 'active' : '' }}" href="{{ route('admin.hangsanxuat.danhsach') }}"><i class="fas fa-copyright"></i>Thương hiệu</a>
                             </li>
                             <li class="nav-item">
                                 <a class="nav-link {{ request()->routeIs('admin.sanpham.*') ? 'active' : '' }}" href="{{ route('admin.sanpham.danhsach') }}"><i class="fas fa-tag"></i>Sản phẩm</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link {{ request()->routeIs('admin.tinhtrang.*') ? 'active' : '' }}" href="{{ route('admin.tinhtrang.danhsach') }}"><i class="fas fa-info-circle"></i>Tình trạng</a>
+                                <a class="nav-link {{ request()->routeIs('admin.chatlieuday.*') ? 'active' : '' }}" href="{{ route('admin.chatlieuday.index') }}"><i class="fas fa-link"></i>Chất liệu dây</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link {{ request()->routeIs('admin.phongcach.*') ? 'active' : '' }}" href="{{ route('admin.phongcach.index') }}"><i class="fas fa-palette"></i>Phong cách</a>
                             </li>
                         </ul>
                     </div>
@@ -452,6 +455,60 @@
     </main>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+    document.addEventListener('DOMContentLoaded', function () {
+        window.watchShopInitGroupedNumbers = function (root) {
+            (root || document).querySelectorAll('[data-thousands]').forEach(function (input) {
+                var decimals = parseInt(input.dataset.decimals || '0', 10);
+
+                function formatInteger(value) {
+                    var digits = String(value || '').replace(/\D/g, '');
+                    return digits.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+                }
+
+                function formatInput() {
+                    if (!decimals) {
+                        input.value = formatInteger(input.value);
+                        return;
+                    }
+
+                    var value = input.value.replace(/\./g, '');
+                    var parts = value.split(',');
+                    var integer = formatInteger(parts[0]);
+                    var fraction = (parts[1] || '').replace(/\D/g, '').slice(0, decimals);
+                    input.value = integer + (parts.length > 1 ? ',' + fraction : '');
+                }
+
+                if (!input.dataset.groupedInitialized) {
+                    input.dataset.groupedInitialized = '1';
+                    if (decimals && input.value && input.value.indexOf(',') === -1 && input.value.indexOf('.') !== -1) {
+                        var decimalParts = input.value.split('.');
+                        input.value = formatInteger(decimalParts[0]) + (decimalParts[1] ? ',' + decimalParts[1] : '');
+                    } else if (input.value) {
+                        formatInput();
+                    }
+
+                    input.addEventListener('blur', formatInput);
+                }
+            });
+        };
+
+        window.watchShopInitGroupedNumbers();
+
+        document.querySelectorAll('form').forEach(function (form) {
+            form.addEventListener('submit', function () {
+                form.querySelectorAll('[data-thousands]').forEach(function (input) {
+                    var decimals = parseInt(input.dataset.decimals || '0', 10);
+                    if (decimals) {
+                        input.value = input.value.replace(/\./g, '').replace(',', '.');
+                    } else {
+                        input.value = input.value.replace(/\./g, '');
+                    }
+                });
+            });
+        });
+    });
+    </script>
     @stack('scripts')
 </body>
 </html>

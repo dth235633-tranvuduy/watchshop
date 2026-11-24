@@ -15,7 +15,7 @@ class LoaiSanPhamImport implements ToModel, WithHeadingRow
 
     public function model(array $row): ?LoaiSanPham
     {
-        $name = trim((string) ($row['tenloai'] ?? $row['ten_loai'] ?? $row['tenloaisanpham'] ?? $row['ten_loai_san_pham'] ?? $row['name'] ?? $row['category'] ?? ''));
+        $name = trim((string) ($row['tenloai'] ?? $row['ten_loai'] ?? $row['tenloaimay'] ?? $row['ten_loai_may'] ?? $row['tenloaisanpham'] ?? $row['ten_loai_san_pham'] ?? $row['name'] ?? $row['category'] ?? $row['machine_type'] ?? ''));
 
         if ($name === '') {
             return null;

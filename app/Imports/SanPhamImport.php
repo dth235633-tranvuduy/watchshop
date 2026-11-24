@@ -80,7 +80,7 @@ class SanPhamImport implements ToModel, WithHeadingRow
 
     private function findOrCreateCategory(array $row): ?LoaiSanPham
     {
-        $value = trim((string) ($row['loaisanpham'] ?? $row['loai_san_pham'] ?? $row['loai'] ?? $row['category'] ?? ''));
+        $value = trim((string) ($row['loaisanpham'] ?? $row['loai_san_pham'] ?? $row['loaimay'] ?? $row['loai_may'] ?? $row['loai'] ?? $row['category'] ?? $row['machine_type'] ?? ''));
 
         if ($value === '') {
             return null;
@@ -100,7 +100,7 @@ class SanPhamImport implements ToModel, WithHeadingRow
 
     private function findOrCreateBrand(array $row): ?HangSanXuat
     {
-        $value = trim((string) ($row['hangsanxuat'] ?? $row['hang_san_xuat'] ?? $row['hang'] ?? $row['brand'] ?? ''));
+        $value = trim((string) ($row['hangsanxuat'] ?? $row['hang_san_xuat'] ?? $row['thuonghieu'] ?? $row['thuong_hieu'] ?? $row['hang'] ?? $row['brand'] ?? ''));
 
         if ($value === '') {
             return null;

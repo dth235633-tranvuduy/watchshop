@@ -81,7 +81,7 @@
         @if($sanpham->soluong > 0)
             <form method="GET" action="{{ route('frontend.giohang.them', $sanpham->tensanpham_slug) }}" class="d-flex gap-2 align-items-center mb-3">
                 <label for="quantity" class="fw-semibold mb-0">Số lượng</label>
-                <input id="quantity" name="quantity" type="number" value="1" min="1" max="{{ $sanpham->soluong }}" class="form-control qty-input">
+                <input id="quantity" name="quantity" type="text" inputmode="numeric" data-thousands data-decimals="0" value="1" min="1" max="{{ $sanpham->soluong }}" class="form-control qty-input">
                 <button class="btn btn-gold flex-grow-1" type="submit"><i class="fas fa-cart-plus me-1"></i>Thêm vào giỏ hàng</button>
             </form>
         @else

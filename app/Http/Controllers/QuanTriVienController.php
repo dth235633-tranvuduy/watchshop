@@ -22,16 +22,25 @@ class QuanTriVienController extends Controller
      */
     public function getHome()
     {
-        $revenue = (float) DB::table('donhang_chitiet')
+        $activeOrders = DonHang::query();
+        $revenueQuery = DB::table('donhang_chitiet')
+            ->join('donhang', 'donhang.id', '=', 'donhang_chitiet.donhang_id');
+        $activeOrders->whereDoesntHave('TinhTrang', function ($query): void {
+            $query->where('tinhtrang', 'Đã hủy');
+        });
+        $revenueQuery->join('tinhtrang', 'tinhtrang.id', '=', 'donhang.tinhtrang_id')
+            ->where('tinhtrang.tinhtrang', '!=', 'Đã hủy');
+
+        $revenue = (float) (clone $revenueQuery)
             ->selectRaw('COALESCE(SUM(soluongban * dongiaban), 0) AS total')
             ->value('total');
 
         $stats = [
             'sanpham' => SanPham::count(),
-            'donhang' => DonHang::count(),
+            'donhang' => (clone $activeOrders)->count(),
             'nguoidung' => User::count(),
             'doanhthu' => $revenue,
-            'donhang_moi' => DonHang::where('created_at', '>=', now()->startOfMonth())->count(),
+            'donhang_moi' => (clone $activeOrders)->where('created_at', '>=', now()->startOfMonth())->count(),
             'khachhang_moi' => User::where('role', 'user')->where('created_at', '>=', now()->startOfMonth())->count(),
             'ton_kho_thap' => SanPham::where('soluong', '<', 3)->count(),
             'ungvien' => $this->pendingApplicationsCount(),
@@ -55,6 +64,9 @@ class QuanTriVienController extends Controller
 
         $topProducts = DonHang_ChiTiet::query()
             ->select('sanpham_id', DB::raw('SUM(soluongban) AS total_quantity'), DB::raw('SUM(soluongban * dongiaban) AS total_revenue'))
+            ->join('donhang', 'donhang.id', '=', 'donhang_chitiet.donhang_id')
+            ->join('tinhtrang', 'tinhtrang.id', '=', 'donhang.tinhtrang_id')
+            ->where('tinhtrang.tinhtrang', '!=', 'Đã hủy')
             ->with('SanPham')
             ->groupBy('sanpham_id')
             ->orderByDesc('total_quantity')
@@ -84,7 +96,9 @@ class QuanTriVienController extends Controller
             : 'MONTH(donhang.created_at)';
         $rows = DB::table('donhang_chitiet')
             ->join('donhang', 'donhang.id', '=', 'donhang_chitiet.donhang_id')
+            ->join('tinhtrang', 'tinhtrang.id', '=', 'donhang.tinhtrang_id')
             ->whereYear('donhang.created_at', now()->year)
+            ->where('tinhtrang.tinhtrang', '!=', 'Đã hủy')
             ->selectRaw($monthExpression.' AS thang, SUM(soluongban * dongiaban) AS total')
             ->groupByRaw($monthExpression)
             ->pluck('total', 'thang');
@@ -105,11 +119,13 @@ class QuanTriVienController extends Controller
     private function dailyRevenue(): array
     {
         $dateExpression = DB::connection()->getDriverName() === 'sqlite'
-            ? "date(donhang.created_at)"
+            ? 'date(donhang.created_at)'
             : 'DATE(donhang.created_at)';
         $rows = DB::table('donhang_chitiet')
             ->join('donhang', 'donhang.id', '=', 'donhang_chitiet.donhang_id')
+            ->join('tinhtrang', 'tinhtrang.id', '=', 'donhang.tinhtrang_id')
             ->where('donhang.created_at', '>=', now()->subDays(6)->startOfDay())
+            ->where('tinhtrang.tinhtrang', '!=', 'Đã hủy')
             ->selectRaw($dateExpression.' AS ngay, SUM(soluongban * dongiaban) AS total')
             ->groupByRaw($dateExpression)
             ->pluck('total', 'ngay');

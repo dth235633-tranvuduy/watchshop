@@ -6,11 +6,13 @@ use App\Http\Controllers\AdminInventoryController;
 use App\Http\Controllers\AdminReviewController;
 use App\Http\Controllers\AdminVoucherController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\ChatLieuDayController;
 use App\Http\Controllers\DonHangController;
 use App\Http\Controllers\HangSanXuatController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\KhachHangController;
 use App\Http\Controllers\LoaiSanPhamController;
+use App\Http\Controllers\PhongCachController;
 use App\Http\Controllers\QuanTriVienController;
 use App\Http\Controllers\SanPhamController;
 use App\Http\Controllers\TinhTrangController;
@@ -129,6 +131,16 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'active', 'role:admi
     Route::get('/loaisanpham/xoa/{id}', [LoaiSanPhamController::class, 'getXoa'])->name('loaisanpham.xoa');
     Route::post('/loaisanpham/nhap', [LoaiSanPhamController::class, 'postNhap'])->name('loaisanpham.nhap');
 
+    Route::get('/chatlieuday', [ChatLieuDayController::class, 'index'])->name('chatlieuday.index');
+    Route::post('/chatlieuday', [ChatLieuDayController::class, 'store'])->name('chatlieuday.store');
+    Route::put('/chatlieuday/{chatlieuday}', [ChatLieuDayController::class, 'update'])->name('chatlieuday.update');
+    Route::delete('/chatlieuday/{chatlieuday}', [ChatLieuDayController::class, 'destroy'])->name('chatlieuday.destroy');
+
+    Route::get('/phongcach', [PhongCachController::class, 'index'])->name('phongcach.index');
+    Route::post('/phongcach', [PhongCachController::class, 'store'])->name('phongcach.store');
+    Route::put('/phongcach/{phongcach}', [PhongCachController::class, 'update'])->name('phongcach.update');
+    Route::delete('/phongcach/{phongcach}', [PhongCachController::class, 'destroy'])->name('phongcach.destroy');
+
     // --- HangSanXuat ---
     Route::get('/hangsanxuat', [HangSanXuatController::class, 'getDanhSach'])->name('hangsanxuat.danhsach');
     Route::get('/hangsanxuat/them', [HangSanXuatController::class, 'getThem'])->name('hangsanxuat.them');
@@ -159,6 +171,8 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'active', 'role:admi
 
     // --- DonHang ---
     Route::get('/donhang', [DonHangController::class, 'getDanhSach'])->name('donhang.danhsach');
+    Route::get('/donhang/xuat-excel', [DonHangController::class, 'exportExcel'])->name('donhang.xuat');
+    Route::get('/donhang/{id}/in', [DonHangController::class, 'getIn'])->name('donhang.in');
     Route::get('/donhang/sua/{id}', [DonHangController::class, 'getSua'])->name('donhang.sua');
     Route::post('/donhang/sua/{id}', [DonHangController::class, 'postSua'])->name('donhang.postsua');
     Route::get('/donhang/xoa/{id}', [DonHangController::class, 'getXoa'])->name('donhang.xoa');

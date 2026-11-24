@@ -33,7 +33,7 @@ class LoaiSanPhamController extends Controller
             'tenloai_slug' => Str::slug($request->tenloai, '-'),
         ]);
 
-        return redirect()->route('admin.loaisanpham.danhsach')->with('success', 'Thêm loại sản phẩm thành công.');
+        return redirect()->route('admin.loaisanpham.danhsach')->with('success', 'Thêm loại máy thành công.');
     }
 
     public function getSua(int $id)
@@ -55,7 +55,7 @@ class LoaiSanPhamController extends Controller
         $loaisanpham->tenloai_slug = Str::slug($request->tenloai, '-');
         $loaisanpham->save();
 
-        return redirect()->route('admin.loaisanpham.danhsach')->with('success', 'Cập nhật loại sản phẩm thành công.');
+        return redirect()->route('admin.loaisanpham.danhsach')->with('success', 'Cập nhật loại máy thành công.');
     }
 
     public function getXoa(int $id)
@@ -83,7 +83,7 @@ class LoaiSanPhamController extends Controller
             return back()->with('error', 'Không đọc được file: '.$exception->getMessage());
         }
 
-        $message = "Đã nhập {$import->imported} loại sản phẩm.";
+        $message = "Đã nhập {$import->imported} loại máy.";
         if ($import->skipped > 0) {
             $message .= " Bỏ qua {$import->skipped} dòng trùng tên.";
         }

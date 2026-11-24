@@ -14,16 +14,16 @@
 <div class="card border-0 shadow-sm mb-4" style="background:#fff;">
     <div class="card-body">
         <form method="GET" action="{{ route('frontend.sanpham') }}" class="row g-3 align-items-end">
-            <div class="col-md-3">
-                <label class="form-label small fw-semibold">Danh mục</label>
+            <div class="col-md-2">
+                <label class="form-label small fw-semibold">Loại máy</label>
                 <select class="form-select form-select-sm" name="category" onchange="this.form.submit()">
-                    <option value="">Tất cả danh mục</option>
+                    <option value="">Tất cả loại máy</option>
                     @foreach($loaisanpham as $lsp)
                         <option value="{{ $lsp->tenloai_slug }}" {{ $tenloai_slug === $lsp->tenloai_slug ? 'selected' : '' }}>{{ $lsp->tenloai }}</option>
                     @endforeach
                 </select>
             </div>
-            <div class="col-md-3">
+            <div class="col-md-2">
                 <label class="form-label small fw-semibold">Thương hiệu</label>
                 <select class="form-select form-select-sm" name="hangsanxuat_id" onchange="this.form.submit()">
                     <option value="">Tất cả thương hiệu</option>
@@ -33,12 +33,23 @@
                 </select>
             </div>
             <div class="col-md-2">
+                <label class="form-label small fw-semibold">Phong cách</label>
+                <select class="form-select form-select-sm" name="phongcach" onchange="this.form.submit()">
+                    <option value="">Tất cả phong cách</option>
+                    @foreach($phongcach as $style)
+                        <option value="{{ $style->tenphongcach }}" @selected(($phongcachFilter ?? '') === $style->tenphongcach)>
+                            {{ $style->tenphongcach }}
+                        </option>
+                    @endforeach
+                </select>
+            </div>
+            <div class="col-md-2">
                 <label class="form-label small fw-semibold">Giá từ</label>
-                <input type="number" name="price_min" min="0" step="1000" value="{{ $priceMin ?: '' }}" class="form-control form-control-sm" placeholder="0">
+                <input type="text" inputmode="numeric" data-thousands data-decimals="0" name="price_min" min="0" step="1000" value="{{ $priceMin ?: '' }}" class="form-control form-control-sm" placeholder="0">
             </div>
             <div class="col-md-2">
                 <label class="form-label small fw-semibold">Giá đến</label>
-                <input type="number" name="price_max" min="0" step="1000" value="{{ $priceMax ?: '' }}" class="form-control form-control-sm" placeholder="Không giới hạn">
+                <input type="text" inputmode="numeric" data-thousands data-decimals="0" name="price_max" min="0" step="1000" value="{{ $priceMax ?: '' }}" class="form-control form-control-sm" placeholder="Không giới hạn">
             </div>
             <div class="col-md-2">
                 <button class="btn btn-gold btn-sm w-100" type="submit"><i class="fas fa-filter me-1"></i>Lọc</button>

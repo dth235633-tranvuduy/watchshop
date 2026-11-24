@@ -15,7 +15,7 @@ class AdminInventoryController extends Controller
 
     public function index(): View
     {
-        $receipts = PhieuNhap::with(['NhaCungCap', 'User'])->latest('ngaynhap')->paginate(15);
+        $receipts = PhieuNhap::with(['NhaCungCap', 'User', 'ChiTiet.SanPham'])->latest('ngaynhap')->paginate(15);
         $lowStock = SanPham::with('HangSanXuat')->where('soluong', '<', 3)->orderBy('soluong')->get();
 
         return view('admin.kho.index', compact('receipts', 'lowStock'));

@@ -27,6 +27,9 @@
                         $tong = $dh->DonHang_ChiTiet->sum(fn ($ct) => $ct->soluongban * $ct->dongiaban);
                         $statusName = optional($dh->TinhTrang)->tinhtrang;
                         $statusClass = $statusName === 'Đã thanh toán' ? 'success' : ($statusName === 'Đã hủy' ? 'danger' : 'warning');
+                        $paymentMethodName = $dh->phuongthucthanhtoan === 'bank'
+                            ? 'Thanh toán chuyển khoản'
+                            : 'Thanh toán khi nhận hàng (COD)';
                     @endphp
                     <tr>
                         <td class="text-center">{{ $loop->iteration }}</td>
@@ -36,10 +39,13 @@
                         <td class="text-center">
                             <div class="d-flex flex-column align-items-center gap-2">
                                 <span class="badge bg-{{ $statusClass }}">{{ optional($dh->TinhTrang)->tinhtrang }}</span>
+                                <span class="small text-muted">{{ $paymentMethodName }}</span>
                                 @if(optional($dh->TinhTrang)->tinhtrang === 'Chưa thanh toán')
                                     <div class="d-flex flex-wrap justify-content-center gap-2">
-                                        <form method="POST" action="{{ route('user.donhang.thanhtoan', $dh->id) }}">@csrf<button class="btn btn-sm btn-success" type="submit"><i class="fas fa-credit-card me-1"></i>Thanh toán</button></form>
-                                        <form method="POST" action="{{ route('user.donhang.huy', $dh->id) }}" onsubmit="return confirm('Bạn có chắc muốn hủy đơn hàng này?')">@csrf @method('PATCH')<button class="btn btn-sm btn-outline-danger" type="submit"><i class="fas fa-times me-1"></i>Hủy đơn</button></form>
+                                        <button type="button" class="btn btn-sm btn-outline-danger"
+                                                data-bs-toggle="modal" data-bs-target="#huyDon{{ $dh->id }}">
+                                            <i class="fas fa-times me-1"></i>Hủy đơn
+                                        </button>
                                     </div>
                                 @endif
                             </div>
@@ -54,6 +60,40 @@
                                 <div class="p-3" style="background:var(--ws-cream);">
                                     <p class="mb-2 small"><strong>Người nhận:</strong> {{ $dh->tennguoinhan ?: $user->name }} · <strong>SĐT:</strong> {{ $dh->dienthoaigiaohang }}</p>
                                     <p class="mb-3 small"><strong>Địa chỉ:</strong> {{ $dh->diachigiaohang }} @if($dh->ghichu) · <strong>Ghi chú:</strong> {{ $dh->ghichu }} @endif</p>
+                                    @if($dh->lydo_huy)
+                                        <p class="mb-3 small text-danger"><strong>Lý do hủy:</strong> {{ $dh->lydo_huy }}</p>
+                                    @endif
+                                    @if($dh->phuongthucthanhtoan === 'bank' && $statusName === 'Chưa thanh toán')
+                                        @php
+                                            $bank = config('payment.bank');
+                                            $bankAmount = (int) round((float) $dh->tongtien);
+                                            $bankTransferInfo = 'Thanh toan don hang #' . $dh->id;
+                                            $bankQrUrl = $bank['account_no']
+                                                ? 'https://img.vietqr.io/image/' . urlencode($bank['bank_id']) . '-' . urlencode($bank['account_no']) . '-' . urlencode($bank['template']) . '.png?'
+                                                    . 'amount=' . $bankAmount
+                                                    . '&addInfo=' . urlencode($bankTransferInfo)
+                                                    . '&accountName=' . urlencode($bank['account_name'])
+                                                : null;
+                                        @endphp
+                                        <div class="border rounded bg-white p-3 mb-3">
+                                            <div class="row align-items-center g-3">
+                                                <div class="col-sm-4 text-center">
+                                                    @if($bankQrUrl)
+                                                        <img src="{{ $bankQrUrl }}" alt="Mã QR VietQR đơn hàng #{{ $dh->id }}"
+                                                             class="img-fluid rounded border" style="max-width:180px;">
+                                                    @endif
+                                                </div>
+                                                <div class="col-sm-8">
+                                                    <strong>Thanh toán chuyển khoản đơn #{{ $dh->id }}</strong>
+                                                    @if($bank['account_no'])
+                                                        <div class="small mt-1">Ngân hàng: {{ $bank['bank_id'] }} · STK: {{ $bank['account_no'] }}</div>
+                                                    @endif
+                                                    <div class="small">Số tiền: <strong class="text-gold">{{ number_format($bankAmount, 0, ',', '.') }} đ</strong></div>
+                                                    <div class="small">Nội dung: {{ $bankTransferInfo }}</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    @endif
                                     <div class="table-responsive">
                                         <table class="table table-sm table-bordered bg-white mb-0">
                                             <thead style="background:#fff;">
@@ -69,7 +109,7 @@
                                                 @foreach($dh->DonHang_ChiTiet as $ct)
                                                     <tr>
                                                         <td class="text-center">{{ $loop->iteration }}</td>
-                                                        <td>{{ optional($ct->SanPham)->tensanpham ?? 'Sản phẩm đã xóa' }}</td>
+                                                        <td>{{ $ct->tensanpham_snapshot ?: optional($ct->SanPham)->tensanpham ?: 'Sản phẩm đã xóa' }}</td>
                                                         <td class="text-center">{{ $ct->soluongban }}</td>
                                                         <td class="text-end">{{ number_format($ct->dongiaban, 0, ',', '.') }} đ</td>
                                                         <td class="text-end">{{ number_format($ct->soluongban * $ct->dongiaban, 0, ',', '.') }} đ</td>
@@ -98,4 +138,34 @@
         <a href="{{ route('frontend.sanpham') }}" class="btn btn-gold"><i class="fas fa-tag me-1"></i>Xem sản phẩm</a>
     </div>
 @endif
+
+@foreach($user->DonHang as $dh)
+    @if(optional($dh->TinhTrang)->tinhtrang === 'Chưa thanh toán')
+        <div class="modal fade" id="huyDon{{ $dh->id }}" tabindex="-1"
+             aria-labelledby="huyDonLabel{{ $dh->id }}" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <form method="POST" action="{{ route('user.donhang.huy', $dh->id) }}" class="modal-content">
+                    @csrf
+                    @method('PATCH')
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="huyDonLabel{{ $dh->id }}">Hủy đơn hàng #{{ $dh->id }}</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
+                    </div>
+                    <div class="modal-body">
+                        <label for="lydo_huy{{ $dh->id }}" class="form-label fw-semibold">
+                            Lý do hủy đơn <span class="text-danger">*</span>
+                        </label>
+                        <textarea id="lydo_huy{{ $dh->id }}" name="lydo_huy" rows="4"
+                                  class="form-control" maxlength="1000" required
+                                  placeholder="Ví dụ: đặt nhầm sản phẩm, đổi ý, thay đổi địa chỉ...">{{ old('lydo_huy') }}</textarea>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Không hủy</button>
+                        <button type="submit" class="btn btn-danger">Xác nhận hủy</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    @endif
+@endforeach
 @endsection

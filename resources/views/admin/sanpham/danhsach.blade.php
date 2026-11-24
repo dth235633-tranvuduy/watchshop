@@ -44,8 +44,8 @@
                 <tr>
                     <th class="text-center" style="width: 50px;">#</th>
                     <th class="text-center" style="width: 100px;">Hình ảnh</th>
-                    <th>Loại sản phẩm</th>
-                    <th>Hãng sản xuất</th>
+                    <th>Loại máy</th>
+                    <th>Thương hiệu</th>
                     <th>Tên sản phẩm</th>
                     <th class="text-center" style="width: 80px;">SL</th>
                     <th class="text-end" style="width: 120px;">Đơn giá</th>

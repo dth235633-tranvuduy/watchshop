@@ -42,6 +42,7 @@ class StockReceiptService
 
                 $receipt->ChiTiet()->create([
                     'sanpham_id' => $item['sanpham_id'],
+                    'tensanpham_snapshot' => $product->tensanpham,
                     'soluong' => $item['soluong'],
                     'dongianhap' => $item['dongianhap'],
                 ]);

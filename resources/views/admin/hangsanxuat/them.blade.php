@@ -8,7 +8,7 @@
         <div class="card border-0 shadow-sm rounded-4">
             <div class="card-header bg-white rounded-4 border-0 pt-4 px-4 pb-0">
                 <h4 class="mb-1" style="font-family:'Playfair Display',serif; font-weight:800;">Thêm thương hiệu</h4>
-                <p class="text-muted small mb-3">Tạo hãng sản xuất mới cho cửa hàng.</p>
+                <p class="text-muted small mb-3">Tạo thương hiệu mới cho cửa hàng.</p>
             </div>
             <div class="card-body p-4">
                 <form method="POST" action="{{ route('admin.hangsanxuat.postthem') }}" enctype="multipart/form-data">
