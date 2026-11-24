@@ -19,11 +19,15 @@
             --ws-line: #e6e2d8;
             --ws-cream: #faf8f3;
         }
-        body { font-family: 'Inter', system-ui, sans-serif; background: var(--ws-cream); }
-        .font-display { font-family: 'Playfair Display', serif; }
+        body { font-family: 'Inter', system-ui, sans-serif; background: var(--ws-cream); color: #222; font-size: 16px; line-height: 1.65; }
+        .font-display { font-family: 'Inter', system-ui, sans-serif; }
+        h1, h2, h3, h4, h5, h6 { font-family: 'Inter', system-ui, sans-serif; line-height: 1.3; }
+        p, label, input, button, a { line-height: 1.55; }
+        .form-label { font-size: .95rem; font-weight: 600; }
+        .btn { font-size: 1rem; font-weight: 700; }
 
         .auth-form-pane { width: 100%; max-width: 340px; margin: 0 auto; }
-        .auth-brand { font-family: 'Playfair Display', serif; font-weight: 800; font-size: 1.6rem; color: var(--ws-black); text-decoration: none; letter-spacing: .5px; }
+        .auth-brand { font-family: 'Inter', system-ui, sans-serif; font-weight: 800; font-size: 1.6rem; color: var(--ws-black); text-decoration: none; letter-spacing: .2px; }
         .auth-brand i, .auth-brand span { color: var(--ws-gold); }
 
         .auth-control.form-control, .auth-control.form-select {
@@ -75,7 +79,7 @@
         }
         .auth-cover .cover-content { position: relative; z-index: 2; }
         .auth-cover .cover-eyebrow { color: var(--ws-gold-light); text-transform: uppercase; letter-spacing: 3px; font-size: .75rem; font-weight: 600; }
-        .auth-cover h1 { font-family: 'Playfair Display', serif; font-weight: 800; font-size: 2.6rem; line-height: 1.2; }
+        .auth-cover h1 { font-family: 'Inter', system-ui, sans-serif; font-weight: 800; font-size: 2.35rem; line-height: 1.25; }
         .auth-cover .cover-clock { font-size: 5rem; color: rgba(201,162,39,.35); }
 
         /* Dark mode */

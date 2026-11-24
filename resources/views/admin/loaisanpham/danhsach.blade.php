@@ -1,15 +1,43 @@
 @extends('layouts.app')
 
-@section('title', 'Loại sản phẩm - Watch Shop Admin')
+@section('title', 'Thương hiệu - Watch Shop Admin')
 
 @section('content')
 <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4">
     <h2 class="mb-0" style="font-family:'Playfair Display',serif; font-weight:800;">
-        <i class="fas fa-list me-2" style="color:var(--ws-gold);"></i>Danh sách Loại Sản Phẩm
+        <i class="fas fa-copyright me-2" style="color:var(--ws-gold);"></i>Danh sách Thương hiệu
     </h2>
-    <a href="{{ route('admin.loaisanpham.them') }}" class="btn btn-gold px-4 py-2">
-        <i class="fas fa-plus me-1"></i>Thêm mới
-    </a>
+    <div class="d-flex gap-2">
+        <button type="button" class="btn btn-outline-gold px-4 py-2" data-bs-toggle="modal" data-bs-target="#importLoaiModal">
+            <i class="fas fa-file-import me-1"></i>Nhập file Excel
+        </button>
+        <a href="{{ route('admin.loaisanpham.them') }}" class="btn btn-gold px-4 py-2">
+            <i class="fas fa-plus me-1"></i>Thêm mới
+        </a>
+    </div>
+</div>
+
+<div class="modal fade" id="importLoaiModal" tabindex="-1" aria-labelledby="importLoaiModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form method="POST" action="{{ route('admin.loaisanpham.nhap') }}" enctype="multipart/form-data">
+                @csrf
+                <div class="modal-header">
+                    <h5 class="modal-title" id="importLoaiModalLabel">Nhập thương hiệu từ Excel</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <label for="loaiExcelFile" class="form-label fw-semibold">Chọn file XLSX hoặc XLS</label>
+                    <input id="loaiExcelFile" name="file" type="file" accept=".xlsx,.xls" class="form-control" required>
+                    <div class="form-text">Cột bắt buộc: <strong>Tên thương hiệu</strong>. Có thể dùng tên cột <strong>tenloai</strong>, <strong>Tên thương hiệu</strong> hoặc <strong>Brand</strong>.</div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <button type="submit" class="btn btn-gold"><i class="fas fa-file-import me-1"></i>Nhập file</button>
+                </div>
+            </form>
+        </div>
+    </div>
 </div>
 
 <div class="card vip-card overflow-hidden">
@@ -18,8 +46,8 @@
             <thead>
                 <tr>
                     <th class="text-center ps-4" style="width: 60px;">#</th>
-                    <th>Tên loại</th>
-                    <th>Tên loại không dấu</th>
+                    <th>Tên thương hiệu</th>
+                    <th>Tên thương hiệu không dấu</th>
                     <th class="text-center" style="width: 110px;">Sửa</th>
                     <th class="text-center pe-4" style="width: 110px;">Xóa</th>
                 </tr>

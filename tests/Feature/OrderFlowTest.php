@@ -14,9 +14,52 @@ class OrderFlowTest extends TestCase
 {
     use RefreshDatabase;
 
+    public function test_empty_cart_opens_empty_cart_view(): void
+    {
+        $this->get('/gio-hang')
+            ->assertOk()
+            ->assertViewIs('frontend.giohangrong');
+    }
+
+    public function test_checkout_rolls_back_when_stock_is_not_enough(): void
+    {
+        $user = User::factory()->create(['is_active' => true]);
+        $category = LoaiSanPham::create(['tenloai' => 'Đồng hồ nam', 'tenloai_slug' => 'dong-ho-nam']);
+        $brand = HangSanXuat::create(['tenhang' => 'Watch Brand', 'tenhang_slug' => 'watch-brand']);
+        $product = SanPham::create([
+            'loaisanpham_id' => $category->id,
+            'hangsanxuat_id' => $brand->id,
+            'tensanpham' => 'Limited Watch',
+            'tensanpham_slug' => 'limited-watch',
+            'soluong' => 1,
+            'dongia' => 1000000,
+        ]);
+
+        $this->actingAs($user)
+            ->withSession(['cart' => [
+                $product->id => [
+                    'product_id' => $product->id,
+                    'name' => $product->tensanpham,
+                    'price' => 1000000,
+                    'qty' => 2,
+                ],
+            ]])
+            ->post('/user/dat-hang', [
+                'tennguoinhan' => 'Test Customer',
+                'dienthoaigiaohang' => '0900000000',
+                'diachigiaohang' => 'Test address',
+                'phuongthucthanhtoan' => 'cod',
+            ])
+            ->assertRedirect()
+            ->assertSessionHas('error');
+
+        $this->assertDatabaseHas('sanpham', ['id' => $product->id, 'soluong' => 1]);
+        $this->assertDatabaseCount('donhang', 0);
+    }
+
     public function test_order_creates_default_pending_status_when_status_table_is_empty(): void
     {
-        $user = User::factory()->create();
+        $user = User::factory()->create(['is_active' => true]);
         $category = LoaiSanPham::create(['tenloai' => 'Đồng hồ nam', 'tenloai_slug' => 'dong-ho-nam']);
         $brand = HangSanXuat::create(['tenhang' => 'Watch Brand', 'tenhang_slug' => 'watch-brand']);
         $product = SanPham::create([
@@ -42,6 +85,7 @@ class OrderFlowTest extends TestCase
                 'dienthoaigiaohang' => '0900000000',
                 'diachigiaohang' => 'Test address',
                 'ghichu' => null,
+                'phuongthucthanhtoan' => 'cod',
             ]);
 
         $response->assertRedirect(route('user.dathangthanhcong'));
@@ -49,5 +93,6 @@ class OrderFlowTest extends TestCase
         $this->assertDatabaseHas('donhang', ['user_id' => $user->id, 'tinhtrang_id' => TinhTrang::first()->id]);
         $this->assertDatabaseHas('donhang_chitiet', ['sanpham_id' => $product->id, 'soluongban' => 1]);
         $this->assertDatabaseHas('sanpham', ['id' => $product->id, 'soluong' => 4]);
+        $this->assertDatabaseHas('donhang', ['phuongthucthanhtoan' => 'cod']);
     }
 }

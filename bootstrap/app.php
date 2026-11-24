@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\ActiveUserMiddleware;
 use App\Http\Middleware\ActivityLogMiddleware;
 use App\Http\Middleware\RoleMiddleware;
 use Illuminate\Foundation\Application;
@@ -18,6 +19,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'role' => RoleMiddleware::class,
             'activity' => ActivityLogMiddleware::class,
+            'active' => ActiveUserMiddleware::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

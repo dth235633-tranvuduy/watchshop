@@ -22,8 +22,15 @@
             --ws-line: #e6e2d8;
             --ws-cream: #faf8f3;
         }
-        body { font-family: 'Inter', system-ui, sans-serif; background: var(--ws-cream); color: var(--ws-ink); padding-top: 145px; }
-        h1, h2, h3, .font-display { font-family: 'Playfair Display', serif; }
+        body { font-family: 'Inter', system-ui, sans-serif; background: var(--ws-cream); color: var(--ws-ink); padding-top: 145px; font-size: 16px; line-height: 1.65; }
+        h1, h2, h3, h4, h5, h6, .font-display { font-family: 'Inter', system-ui, sans-serif; }
+        h1 { font-size: 2.25rem; font-weight: 800; line-height: 1.25; }
+        h2 { font-size: 1.8rem; font-weight: 800; line-height: 1.3; }
+        h3 { font-size: 1.45rem; font-weight: 750; line-height: 1.35; }
+        p, td, th, label, input, select, textarea, button, a { line-height: 1.55; }
+        .form-control, .form-select { font-size: 1rem; }
+        .btn { font-size: .95rem; font-weight: 700; }
+        .text-muted { color: #686868 !important; }
 
         /* Top bar */
         .ws-topbar { background: var(--ws-black); color: #cfcfcf; font-size: .8rem; padding: 7px 0; }
@@ -33,7 +40,7 @@
 
         /* Header */
         .ws-header { background: #fff; border-bottom: 1px solid var(--ws-line); }
-        .ws-brand { font-family: 'Playfair Display', serif; font-weight: 800; font-size: 1.7rem; color: var(--ws-black); text-decoration: none; letter-spacing: .5px; }
+        .ws-brand { font-family: 'Inter', system-ui, sans-serif; font-weight: 800; font-size: 1.7rem; color: var(--ws-black); text-decoration: none; letter-spacing: .2px; }
         .ws-brand i { color: var(--ws-gold); }
         .ws-brand span { color: var(--ws-gold); }
         .ws-search .form-control { border: 1px solid var(--ws-line); border-right: 0; border-radius: 40px 0 0 40px; background: var(--ws-cream); font-size: .9rem; }
@@ -49,7 +56,7 @@
         .ws-nav .nav-link {
             color: #e8e8e8;
             font-weight: 600;
-            font-size: .88rem;
+            font-size: .92rem;
             text-transform: uppercase;
             letter-spacing: .8px;
             padding: 13px 4px;
@@ -108,7 +115,7 @@
         .product-card:hover { transform: translateY(-6px); box-shadow: 0 16px 34px rgba(0,0,0,.12); border-color: var(--ws-gold-light); }
         .product-image { width: 100%; height: 240px; object-fit: cover; background: var(--ws-cream); display: block; }
         .product-card .card-body { padding: 16px; }
-        .product-card h6 { font-size: .92rem; font-weight: 600; }
+        .product-card h6 { font-size: 1rem; font-weight: 700; line-height: 1.45; }
         .price { font-weight: 700; color: var(--ws-black); font-size: 1.05rem; }
         .original-price { text-decoration: line-through; color: var(--ws-muted); font-size: .85rem; margin-left: 6px; }
         .badge-discount { background: var(--ws-gold); color: #fff; font-weight: 600; }
@@ -128,7 +135,7 @@
 
         /* Footer */
         footer { background: var(--ws-black); color: #cfcfcf; padding: 60px 0 20px; margin-top: 60px; }
-        footer h5 { color: #fff; margin-bottom: 20px; font-family: 'Playfair Display', serif; font-size: 1.15rem; }
+        footer h5 { color: #fff; margin-bottom: 20px; font-family: 'Inter', system-ui, sans-serif; font-size: 1.15rem; }
         footer a { color: #9d9d9d; text-decoration: none; transition: .2s; }
         footer a:hover { color: var(--ws-gold-light); }
         footer ul.list-unstyled li { margin-bottom: 9px; font-size: .9rem; }
@@ -186,9 +193,9 @@
                 </div>
                 <div class="col-lg-4 col-5 d-flex justify-content-end align-items-center">
                     <button class="ws-icon-btn d-lg-none" data-bs-toggle="offcanvas" data-bs-target="#offcanvasSearch" aria-label="Tìm kiếm"><i class="fas fa-search"></i></button>
-                    <a href="{{ route('frontend.giohang') }}" class="ws-icon-btn ms-2" aria-label="Giỏ hàng">
+                    <button type="button" class="ws-icon-btn ms-2" data-bs-toggle="offcanvas" data-bs-target="#offcanvasCart" aria-label="Giỏ hàng">
                         <i class="fas fa-shopping-bag"></i><span class="cart-badge" id="cartBadge">{{ $cartQuantity }}</span>
-                    </a>
+                    </button>
                     @guest
                         <a href="{{ route('login') }}" class="ws-icon-btn ms-2 d-none d-sm-inline" aria-label="Đăng nhập"><i class="fas fa-user"></i></a>
                         <a href="{{ route('register') }}" class="btn btn-gold btn-sm ms-3 d-none d-md-inline">Đăng ký</a>
@@ -269,9 +276,21 @@
         <div class="offcanvas-body">
             @forelse($cart as $rowId => $item)
                 <div class="d-flex justify-content-between align-items-start border-bottom pb-3 mb-3">
-                    <div class="me-2">
-                        <div class="fw-semibold" style="font-size:.9rem;">{{ $item['name'] }}</div>
-                        <small class="text-muted">{{ $item['qty'] }} x {{ number_format($item['price'], 0, ',', '.') }} đ</small>
+                    <div class="d-flex align-items-start me-2">
+                        @if(! empty($item['image']))
+                            @php
+                                $offcanvasImage = str_starts_with($item['image'], 'http')
+                                    ? $item['image']
+                                    : route('frontend.hinhanh', ['path' => $item['image']]);
+                            @endphp
+                            <img src="{{ $offcanvasImage }}" alt="{{ $item['name'] }}"
+                                 class="rounded me-2" style="width:56px;height:56px;object-fit:cover;">
+                        @endif
+                        <div>
+                            <div class="fw-semibold" style="font-size:.9rem;">{{ $item['name'] }}</div>
+                            <small class="text-muted">{{ $item['qty'] }} x {{ number_format($item['price'], 0, ',', '.') }} đ</small>
+                            <div class="small fw-bold mt-1">{{ number_format($item['qty'] * $item['price'], 0, ',', '.') }} đ</div>
+                        </div>
                     </div>
                     <a href="{{ route('frontend.giohang.xoa', $rowId) }}" class="text-danger" aria-label="Xóa"><i class="fas fa-trash"></i></a>
                 </div>

@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Imports\LoaiSanPhamImport;
 use App\Models\LoaiSanPham;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use Maatwebsite\Excel\Facades\Excel;
 
 class LoaiSanPhamController extends Controller
 {
@@ -62,5 +64,30 @@ class LoaiSanPhamController extends Controller
         $loaisanpham->delete();
 
         return redirect()->route('admin.loaisanpham.danhsach')->with('success', 'Xóa loại sản phẩm thành công.');
+    }
+
+    public function postNhap(Request $request)
+    {
+        $request->validate([
+            'file' => ['required', 'file', 'mimes:xlsx,xls', 'max:20480'],
+        ], [
+            'file.required' => 'Vui lòng chọn file cần nhập.',
+            'file.mimes' => 'File phải có định dạng XLSX hoặc XLS.',
+            'file.max' => 'File không được vượt quá 20MB.',
+        ]);
+
+        try {
+            $import = new LoaiSanPhamImport;
+            Excel::import($import, $request->file('file'));
+        } catch (\Throwable $exception) {
+            return back()->with('error', 'Không đọc được file: '.$exception->getMessage());
+        }
+
+        $message = "Đã nhập {$import->imported} loại sản phẩm.";
+        if ($import->skipped > 0) {
+            $message .= " Bỏ qua {$import->skipped} dòng trùng tên.";
+        }
+
+        return back()->with('success', $message);
     }
 }

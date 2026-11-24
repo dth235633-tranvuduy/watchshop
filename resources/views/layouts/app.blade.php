@@ -27,6 +27,8 @@
             background: var(--ws-cream);
             color: var(--ws-ink);
             padding-top: 72px;
+            font-size: 16px;
+            line-height: 1.65;
         }
 
         ::-webkit-scrollbar { width: 9px; height: 9px; }
@@ -34,7 +36,17 @@
         ::-webkit-scrollbar-thumb { background: #d8d2c4; border-radius: 8px; }
         ::-webkit-scrollbar-thumb:hover { background: var(--ws-gold); }
 
-        h1, h2, h3, h4, .font-display { font-family: 'Playfair Display', serif; }
+        h1, h2, h3, h4, h5, h6, .font-display { font-family: 'Inter', system-ui, sans-serif; }
+        h1 { font-size: 2rem; font-weight: 800; line-height: 1.25; }
+        h2 { font-size: 1.65rem; font-weight: 800; line-height: 1.3; }
+        h3 { font-size: 1.35rem; font-weight: 750; line-height: 1.35; }
+        h4, h5, h6 { font-weight: 700; line-height: 1.4; }
+        p, td, th, label, input, select, textarea, button, a { line-height: 1.55; }
+        .table { font-size: .95rem; color: var(--ws-ink); }
+        .table td, .table th { padding-top: .85rem; padding-bottom: .85rem; }
+        .form-control, .form-select { font-size: 1rem; }
+        .btn { font-size: .95rem; font-weight: 700; }
+        .text-muted { color: #686868 !important; }
 
         /* ---------- Admin navbar ---------- */
         .ws-admin-nav {
@@ -44,7 +56,7 @@
             border-bottom: 1px solid rgba(201,162,39,.18);
         }
         .ws-admin-brand {
-            font-family: 'Playfair Display', serif;
+            font-family: 'Inter', system-ui, sans-serif;
             font-weight: 800;
             font-size: 1.45rem;
             color: #fff !important;
@@ -184,14 +196,14 @@
         @media (min-width: 992px) {
             body {
                 padding-top: 0;
-                zoom: .9;
             }
 
             .ws-admin-nav {
                 width: 252px;
-                height: calc(100vh / .9);
+                height: 100vh;
                 padding: 24px 16px;
                 align-items: stretch;
+                overflow: hidden;
             }
 
             .ws-admin-nav > .container-xxl {
@@ -216,6 +228,7 @@
                 flex: 1;
                 flex-direction: column;
                 align-items: stretch;
+                min-height: 0;
             }
 
             .ws-admin-nav .navbar-nav {
@@ -228,6 +241,32 @@
             }
 
             .ws-admin-nav .navbar-nav:first-child { gap: 5px; }
+
+            .sidebar-menu {
+                flex: 1;
+                min-height: 0;
+                overflow-y: auto;
+                padding-right: 4px;
+            }
+
+            .sidebar-menu::-webkit-scrollbar { width: 5px; }
+            .sidebar-menu::-webkit-scrollbar-thumb {
+                background: rgba(201,162,39,.45);
+                border-radius: 999px;
+            }
+
+            .sidebar-section { margin-bottom: 10px; }
+
+            .sidebar-section-title {
+                padding: 8px 14px 5px;
+                color: #9b9b9b;
+                font-size: .69rem;
+                font-weight: 800;
+                letter-spacing: .12em;
+                text-transform: uppercase;
+            }
+
+            .sidebar-section .navbar-nav { gap: 2px; }
 
             .ws-admin-nav .nav-link {
                 margin: 0;
@@ -254,17 +293,18 @@
             .ws-admin-nav .nav-link:hover,
             .ws-admin-nav .nav-link.active { background: rgba(201,162,39,.12); }
 
-            .ws-admin-nav .navbar-collapse > .navbar-nav:last-child {
-                margin-top: auto !important;
+            .ws-admin-nav .admin-account {
+                flex: 0 0 auto;
                 padding-top: 18px;
                 border-top: 1px solid rgba(255,255,255,.10);
+                margin-top: 8px;
             }
 
-            .ws-admin-nav .navbar-collapse > .navbar-nav:last-child .nav-link {
+            .ws-admin-nav .admin-account .nav-link {
                 padding: 10px 8px !important;
             }
 
-            .ws-admin-nav .navbar-collapse > .navbar-nav:last-child .dropdown-menu {
+            .ws-admin-nav .admin-account .dropdown-menu {
                 top: auto;
                 bottom: 100%;
                 right: 0;
@@ -288,7 +328,7 @@
 
         .admin-store-link {
             position: fixed;
-            top: 24px;
+            bottom: 24px;
             right: 32px;
             z-index: 1031;
             display: inline-flex;
@@ -326,43 +366,57 @@
                 <span class="navbar-toggler-icon" style="filter: invert(1);"></span>
             </button>
             <div class="collapse navbar-collapse" id="adminNavbar">
-                <ul class="navbar-nav me-auto mb-2 mb-lg-0 ms-lg-5">
-                    <li class="nav-item">
-                        <a class="nav-link {{ request()->routeIs('admin.loaisanpham.*') ? 'active' : '' }}" href="{{ route('admin.loaisanpham.danhsach') }}"><i class="fas fa-list"></i>Loại sản phẩm</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link {{ request()->routeIs('admin.hangsanxuat.*') ? 'active' : '' }}" href="{{ route('admin.hangsanxuat.danhsach') }}"><i class="fas fa-building"></i>Hãng sản xuất</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link {{ request()->routeIs('admin.sanpham.*') ? 'active' : '' }}" href="{{ route('admin.sanpham.danhsach') }}"><i class="fas fa-tag"></i>Sản phẩm</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link {{ request()->routeIs('admin.tinhtrang.*') ? 'active' : '' }}" href="{{ route('admin.tinhtrang.danhsach') }}"><i class="fas fa-info-circle"></i>Tình trạng</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link {{ request()->routeIs('admin.donhang.*') ? 'active' : '' }}" href="{{ route('admin.donhang.danhsach') }}"><i class="fas fa-shopping-cart"></i>Đơn hàng</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link {{ request()->routeIs('admin.nguoidung.*') ? 'active' : '' }}" href="{{ route('admin.nguoidung.danhsach') }}"><i class="fas fa-users"></i>Người dùng</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link {{ request()->routeIs('admin.lichsu.*') ? 'active' : '' }}" href="{{ route('admin.lichsu.danhsach') }}"><i class="fas fa-clock-rotate-left"></i>Lịch sử</a>
-                    </li>
-                </ul>
-                    <li class="nav-item">
-                        <a class="nav-link {{ request()->routeIs('admin.kho.*') ? 'active' : '' }}" href="{{ route('admin.kho.danhsach') }}"><i class="fas fa-boxes-stacked"></i>Kho hàng</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link {{ request()->routeIs('admin.voucher.*') ? 'active' : '' }}" href="{{ route('admin.voucher.danhsach') }}"><i class="fas fa-ticket"></i>Voucher</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link {{ request()->routeIs('admin.danhgia.*') ? 'active' : '' }}" href="{{ route('admin.danhgia.danhsach') }}"><i class="fas fa-star"></i>Đánh giá</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link {{ request()->routeIs('admin.banner.*') ? 'active' : '' }}" href="{{ route('admin.banner.danhsach') }}"><i class="fas fa-images"></i>Banner</a>
-                    </li>
-                </ul>
-                <ul class="navbar-nav mb-2 mb-lg-0">
+                <div class="sidebar-menu">
+                    <div class="sidebar-section">
+                        <div class="sidebar-section-title">Quản trị dữ liệu</div>
+                        <ul class="navbar-nav">
+                            <li class="nav-item">
+                                <a class="nav-link {{ request()->routeIs('admin.loaisanpham.*') ? 'active' : '' }}" href="{{ route('admin.loaisanpham.danhsach') }}"><i class="fas fa-copyright"></i>Thương hiệu</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link {{ request()->routeIs('admin.hangsanxuat.*') ? 'active' : '' }}" href="{{ route('admin.hangsanxuat.danhsach') }}"><i class="fas fa-building"></i>Hãng sản xuất</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link {{ request()->routeIs('admin.sanpham.*') ? 'active' : '' }}" href="{{ route('admin.sanpham.danhsach') }}"><i class="fas fa-tag"></i>Sản phẩm</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link {{ request()->routeIs('admin.tinhtrang.*') ? 'active' : '' }}" href="{{ route('admin.tinhtrang.danhsach') }}"><i class="fas fa-info-circle"></i>Tình trạng</a>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="sidebar-section">
+                        <div class="sidebar-section-title">Bán hàng</div>
+                        <ul class="navbar-nav">
+                            <li class="nav-item">
+                                <a class="nav-link {{ request()->routeIs('admin.donhang.*') ? 'active' : '' }}" href="{{ route('admin.donhang.danhsach') }}"><i class="fas fa-shopping-cart"></i>Đơn hàng</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link {{ request()->routeIs('admin.kho.*') ? 'active' : '' }}" href="{{ route('admin.kho.danhsach') }}"><i class="fas fa-boxes-stacked"></i>Kho hàng</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link {{ request()->routeIs('admin.nguoidung.*') ? 'active' : '' }}" href="{{ route('admin.nguoidung.danhsach') }}"><i class="fas fa-users"></i>Người dùng</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link {{ request()->routeIs('admin.lichsu.*') ? 'active' : '' }}" href="{{ route('admin.lichsu.danhsach') }}"><i class="fas fa-clock-rotate-left"></i>Lịch sử</a>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="sidebar-section">
+                        <div class="sidebar-section-title">Marketing</div>
+                        <ul class="navbar-nav">
+                            <li class="nav-item">
+                                <a class="nav-link {{ request()->routeIs('admin.voucher.*') ? 'active' : '' }}" href="{{ route('admin.voucher.danhsach') }}"><i class="fas fa-ticket"></i>Voucher</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link {{ request()->routeIs('admin.danhgia.*') ? 'active' : '' }}" href="{{ route('admin.danhgia.danhsach') }}"><i class="fas fa-star"></i>Đánh giá</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link {{ request()->routeIs('admin.banner.*') ? 'active' : '' }}" href="{{ route('admin.banner.danhsach') }}"><i class="fas fa-images"></i>Banner</a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                <ul class="navbar-nav admin-account">
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" id="adminDropdown" data-bs-toggle="dropdown" style="color:#fff !important;">
                             <i class="fas fa-user-circle" style="color:var(--ws-gold);"></i>{{ Auth::user()->name }}

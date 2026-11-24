@@ -5,12 +5,14 @@ namespace App\Http\Controllers;
 use App\Models\NhaCungCap;
 use App\Models\PhieuNhap;
 use App\Models\SanPham;
+use App\Services\StockReceiptService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 
 class AdminInventoryController extends Controller
 {
+    public function __construct(private readonly StockReceiptService $stockReceipts) {}
+
     public function index(): View
     {
         $receipts = PhieuNhap::with(['NhaCungCap', 'User'])->latest('ngaynhap')->paginate(15);
@@ -41,31 +43,21 @@ class AdminInventoryController extends Controller
             'dongianhap.*' => ['required', 'numeric', 'min:0'],
         ]);
 
-        DB::transaction(function () use ($validated): void {
-            $receipt = PhieuNhap::create([
-                'nhacungcap_id' => $validated['nhacungcap_id'],
-                'user_id' => auth()->id(),
-                'ma_phieu' => 'PN-'.now()->format('YmdHis'),
-                'ngaynhap' => $validated['ngaynhap'],
-                'ghichu' => $validated['ghichu'] ?? null,
-                'tongtien' => 0,
-            ]);
-            $total = 0;
+        $items = [];
+        foreach ($validated['sanpham_id'] as $index => $productId) {
+            $items[] = [
+                'sanpham_id' => (int) $productId,
+                'soluong' => (int) $validated['soluong'][$index],
+                'dongianhap' => (float) $validated['dongianhap'][$index],
+            ];
+        }
 
-            foreach ($validated['sanpham_id'] as $index => $productId) {
-                $quantity = (int) $validated['soluong'][$index];
-                $unitPrice = (float) $validated['dongianhap'][$index];
-                $receipt->ChiTiet()->create([
-                    'sanpham_id' => $productId,
-                    'soluong' => $quantity,
-                    'dongianhap' => $unitPrice,
-                ]);
-                SanPham::whereKey($productId)->lockForUpdate()->increment('soluong', $quantity);
-                $total += $quantity * $unitPrice;
-            }
-
-            $receipt->update(['tongtien' => $total]);
-        });
+        $this->stockReceipts->receive(
+            (int) $validated['nhacungcap_id'],
+            $items,
+            $validated['ngaynhap'],
+            $validated['ghichu'] ?? null,
+        );
 
         return redirect()->route('admin.kho.danhsach')->with('success', 'Đã nhập kho và cập nhật tồn sản phẩm.');
     }

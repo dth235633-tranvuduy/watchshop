@@ -8,6 +8,7 @@ use App\Models\HangSanXuat;
 use App\Models\LoaiSanPham;
 use App\Models\SanPham;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
 class HomeController extends Controller
@@ -137,15 +138,29 @@ class HomeController extends Controller
     {
         $cart = session()->get('cart', []);
         $total = collect($cart)->sum(fn (array $item): float => $item['price'] * $item['qty']);
+        $voucher = session('voucher');
+        $discount = $voucher ? (float) ($voucher['discount'] ?? 0) : 0;
+        $shipping = 0;
+        $vat = round(max(0, $total - $discount) * 0.10, 2);
+        $grandTotal = max(0, $total - $discount + $shipping + $vat);
 
-        return view('frontend.giohang', compact('cart', 'total'));
+        if ($cart === []) {
+            return view('frontend.giohangrong');
+        }
+
+        return view('frontend.giohang', compact('cart', 'total', 'discount', 'shipping', 'vat', 'grandTotal', 'voucher'));
     }
 
     public function getGioHang_Them(Request $request, string $tensanpham_slug)
     {
         $sanpham = SanPham::where('tensanpham_slug', $tensanpham_slug)->firstOrFail();
         $price = round((float) $sanpham->dongia * (100 - (int) $sanpham->giamgia) / 100, 2);
-        $quantity = max(1, min($request->integer('quantity', 1), $sanpham->soluong));
+        if ($sanpham->soluong < 1) {
+            return redirect()->route('frontend.giohang')
+                ->with('error', 'Sản phẩm hiện đã hết hàng.');
+        }
+
+        $quantity = max(1, min($request->integer('quantity', 1), 20, $sanpham->soluong));
 
         $cart = session()->get('cart', []);
 
@@ -190,10 +205,12 @@ class HomeController extends Controller
     {
         $cart = session()->get('cart', []);
         if (isset($cart[$row_id])) {
-            $cart[$row_id]['qty']--;
-
-            if ($cart[$row_id]['qty'] <= 0) {
-                unset($cart[$row_id]);
+            $currentQuantity = (int) $cart[$row_id]['qty'];
+            if ($currentQuantity <= 1) {
+                session()->flash('error', 'Số lượng tối thiểu của sản phẩm là 1.');
+            } else {
+                $cart[$row_id]['qty'] = $currentQuantity - 1;
+                session()->flash('success', 'Đã giảm số lượng sản phẩm.');
             }
         }
 
@@ -206,14 +223,22 @@ class HomeController extends Controller
     {
         $cart = session()->get('cart', []);
         if (isset($cart[$row_id])) {
-            $sanpham = SanPham::find($row_id);
+            $sanpham = DB::transaction(function () use ($row_id): ?SanPham {
+                return SanPham::whereKey($row_id)->lockForUpdate()->first();
+            });
 
             if (! $sanpham || $cart[$row_id]['qty'] >= $sanpham->soluong) {
                 return redirect()->route('frontend.giohang')
                     ->with('error', 'Số lượng sản phẩm trong kho không đủ.');
             }
 
+            if ($cart[$row_id]['qty'] >= 20) {
+                return redirect()->route('frontend.giohang')
+                    ->with('error', 'Mỗi sản phẩm chỉ được đặt tối đa 20.');
+            }
+
             $cart[$row_id]['qty']++;
+            session()->flash('success', 'Đã tăng số lượng sản phẩm.');
         }
 
         session()->put('cart', $cart);

@@ -42,9 +42,23 @@ class AdminBannerController extends Controller
 
     public function destroy(Banner $banner)
     {
+        if ($banner->hinh_anh && ! str_starts_with($banner->hinh_anh, 'http')) {
+            Storage::disk('private')->delete($banner->hinh_anh);
+        }
+
         $banner->delete();
 
         return back()->with('success', 'Đã xóa banner.');
+    }
+
+    public function toggle(Banner $banner)
+    {
+        $banner->update(['trang_thai' => ! $banner->trang_thai]);
+
+        return back()->with(
+            'success',
+            $banner->trang_thai ? 'Đã bật banner.' : 'Đã tắt banner.',
+        );
     }
 
     private function validated(Request $request, ?Banner $banner = null): array
@@ -55,7 +69,12 @@ class AdminBannerController extends Controller
             'duong_dan' => ['nullable', 'string', 'max:500'],
             'thu_tu' => ['nullable', 'integer', 'min:0'],
             'trang_thai' => ['nullable', 'boolean'],
-            'hinh_anh' => [$banner ? 'nullable' : 'required', 'image', 'max:4096'],
+            'hinh_anh' => [
+                $banner ? 'nullable' : 'required',
+                'image',
+                'mimes:jpg,jpeg,png,webp',
+                'max:4096',
+            ],
         ];
         $data = $request->validate($rules);
         if ($request->hasFile('hinh_anh')) {

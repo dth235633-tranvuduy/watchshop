@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Imports\HangSanXuatImport;
 use App\Models\HangSanXuat;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use Maatwebsite\Excel\Facades\Excel;
 
 class HangSanXuatController extends Controller
 {
@@ -75,5 +77,30 @@ class HangSanXuatController extends Controller
         $hangsanxuat->delete();
 
         return redirect()->route('admin.hangsanxuat.danhsach')->with('success', 'Xóa hãng sản xuất thành công.');
+    }
+
+    public function postNhap(Request $request)
+    {
+        $request->validate([
+            'file' => ['required', 'file', 'mimes:xlsx,xls', 'max:20480'],
+        ], [
+            'file.required' => 'Vui lòng chọn file cần nhập.',
+            'file.mimes' => 'File phải có định dạng XLSX hoặc XLS.',
+            'file.max' => 'File không được vượt quá 20MB.',
+        ]);
+
+        try {
+            $import = new HangSanXuatImport;
+            Excel::import($import, $request->file('file'));
+        } catch (\Throwable $exception) {
+            return back()->with('error', 'Không đọc được file: '.$exception->getMessage());
+        }
+
+        $message = "Đã nhập {$import->imported} hãng sản xuất.";
+        if ($import->skipped > 0) {
+            $message .= " Bỏ qua {$import->skipped} dòng trùng tên.";
+        }
+
+        return back()->with('success', $message);
     }
 }

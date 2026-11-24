@@ -10,7 +10,7 @@ class DonHang extends Model
 {
     protected $table = 'donhang';
 
-    protected $fillable = ['user_id', 'voucher_id', 'tinhtrang_id', 'tennguoinhan', 'dienthoaigiaohang', 'diachigiaohang', 'ghichu', 'tiengiam', 'tongtien'];
+    protected $fillable = ['user_id', 'voucher_id', 'tinhtrang_id', 'tennguoinhan', 'dienthoaigiaohang', 'diachigiaohang', 'ghichu', 'phuongthucthanhtoan', 'tiengiam', 'tongtien'];
 
     protected function casts(): array
     {

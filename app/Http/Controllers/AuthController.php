@@ -27,6 +27,13 @@ class AuthController extends Controller
                 ->withErrors(['email' => 'Email hoặc mật khẩu không chính xác.']);
         }
 
+        if (! Auth::user()->is_active) {
+            Auth::logout();
+
+            return back()->withInput($request->only('email'))
+                ->withErrors(['email' => 'Tài khoản của bạn đang bị vô hiệu hóa.']);
+        }
+
         $request->session()->regenerate();
 
         ActivityLog::record(Auth::user(), 'login', 'Đăng nhập thành công', 'login.submit', $request->method(), $request->fullUrl(), $request->ip(), $request->userAgent());

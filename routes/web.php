@@ -56,7 +56,7 @@ Route::name('frontend.')->group(function () {
 // ============================================================================
 // NHÓM 2: ROUTES NGƯỜI DÙNG (User) - Cần đăng nhập
 // ============================================================================
-Route::prefix('user')->name('user.')->middleware(['auth', 'activity'])->group(function () {
+Route::prefix('user')->name('user.')->middleware(['auth', 'active', 'activity'])->group(function () {
     Route::get('/', [KhachHangController::class, 'getHome'])->name('home');
     Route::get('/home', [KhachHangController::class, 'getHome'])->name('home');
 
@@ -84,7 +84,7 @@ Route::get('/user/dang-nhap', [AuthController::class, 'showLogin'])->name('user.
 // ============================================================================
 // NHÓM 3: ROUTES QUẢN TRỊ (Admin) - Cần đăng nhập
 // ============================================================================
-Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin', 'activity'])->group(function () {
+Route::prefix('admin')->name('admin.')->middleware(['auth', 'active', 'role:admin', 'activity'])->group(function () {
 
     Route::get('/', [QuanTriVienController::class, 'getHome'])->name('home');
     Route::get('/home', [QuanTriVienController::class, 'getHome'])->name('home');
@@ -114,6 +114,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin', 'activ
     Route::get('/banner/{banner}/sua', [AdminBannerController::class, 'edit'])->name('banner.sua');
     Route::put('/banner/{banner}', [AdminBannerController::class, 'update'])->name('banner.capnhat');
     Route::delete('/banner/{banner}', [AdminBannerController::class, 'destroy'])->name('banner.xoa');
+    Route::patch('/banner/{banner}/trang-thai', [AdminBannerController::class, 'toggle'])->name('banner.trangthai');
 
     Route::get('/lich-su', [AdminActivityLogController::class, 'index'])->name('lichsu.danhsach');
     Route::delete('/lich-su/{activityLog}', [AdminActivityLogController::class, 'destroy'])->name('lichsu.xoa');
@@ -126,6 +127,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin', 'activ
     Route::get('/loaisanpham/sua/{id}', [LoaiSanPhamController::class, 'getSua'])->name('loaisanpham.sua');
     Route::post('/loaisanpham/sua/{id}', [LoaiSanPhamController::class, 'postSua'])->name('loaisanpham.postsua');
     Route::get('/loaisanpham/xoa/{id}', [LoaiSanPhamController::class, 'getXoa'])->name('loaisanpham.xoa');
+    Route::post('/loaisanpham/nhap', [LoaiSanPhamController::class, 'postNhap'])->name('loaisanpham.nhap');
 
     // --- HangSanXuat ---
     Route::get('/hangsanxuat', [HangSanXuatController::class, 'getDanhSach'])->name('hangsanxuat.danhsach');
@@ -134,9 +136,13 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin', 'activ
     Route::get('/hangsanxuat/sua/{id}', [HangSanXuatController::class, 'getSua'])->name('hangsanxuat.sua');
     Route::post('/hangsanxuat/sua/{id}', [HangSanXuatController::class, 'postSua'])->name('hangsanxuat.postsua');
     Route::get('/hangsanxuat/xoa/{id}', [HangSanXuatController::class, 'getXoa'])->name('hangsanxuat.xoa');
+    Route::post('/hangsanxuat/nhap', [HangSanXuatController::class, 'postNhap'])->name('hangsanxuat.nhap');
 
     // --- SanPham ---
     Route::get('/sanpham', [SanPhamController::class, 'getDanhSach'])->name('sanpham.danhsach');
+    Route::get('/sanpham/nhap', [SanPhamController::class, 'getNhap'])->name('sanpham.nhap');
+    Route::get('/sanpham/nhap/mau', [SanPhamController::class, 'getMauNhap'])->name('sanpham.mau');
+    Route::post('/sanpham/nhap', [SanPhamController::class, 'postNhap'])->name('sanpham.postnhap');
     Route::get('/sanpham/them', [SanPhamController::class, 'getThem'])->name('sanpham.them');
     Route::post('/sanpham/them', [SanPhamController::class, 'postThem'])->name('sanpham.postthem');
     Route::get('/sanpham/sua/{id}', [SanPhamController::class, 'getSua'])->name('sanpham.sua');
@@ -169,4 +175,5 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin', 'activ
     Route::get('/nguoidung/sua/{id}', [UserController::class, 'getSua'])->name('nguoidung.sua');
     Route::post('/nguoidung/sua/{id}', [UserController::class, 'postSua'])->name('nguoidung.postsua');
     Route::get('/nguoidung/xoa/{id}', [UserController::class, 'getXoa'])->name('nguoidung.xoa');
+    Route::patch('/nguoidung/{id}/trang-thai', [UserController::class, 'postTrangThai'])->name('nguoidung.trangthai');
 });

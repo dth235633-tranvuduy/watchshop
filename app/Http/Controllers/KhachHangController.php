@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\DanhGia;
 use App\Models\DonHang;
 use App\Models\DonHang_ChiTiet;
-use App\Models\DanhGia;
 use App\Models\SanPham;
 use App\Models\TinhTrang;
 use App\Models\User;
@@ -13,6 +13,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
 use Throwable;
 
 class KhachHangController extends Controller
@@ -85,12 +86,18 @@ class KhachHangController extends Controller
 
         /** @var User $user */
         $user = Auth::user();
+        if (! $user) {
+            return redirect()->route('login')->with('error', 'Vui lòng đăng nhập để đặt hàng.');
+        }
+
         $subtotal = collect($cart)->sum(fn (array $item): float => $item['price'] * $item['qty']);
         $voucher = session('voucher');
         $discount = $voucher ? (float) ($voucher['discount'] ?? 0) : 0;
-        $total = max(0, $subtotal - $discount);
+        $shipping = 0;
+        $vat = round(max(0, $subtotal - $discount) * 0.10, 2);
+        $total = max(0, $subtotal - $discount + $shipping + $vat);
 
-        return view('user.dathang', compact('cart', 'subtotal', 'discount', 'total', 'voucher', 'user'));
+        return view('user.dathang', compact('cart', 'subtotal', 'discount', 'shipping', 'vat', 'total', 'voucher', 'user'));
     }
 
     public function postApDungVoucher(Request $request)
@@ -137,9 +144,10 @@ class KhachHangController extends Controller
     {
         $validated = $request->validate([
             'tennguoinhan' => ['required', 'string', 'max:255'],
-            'dienthoaigiaohang' => ['required', 'string', 'max:20'],
+            'dienthoaigiaohang' => ['required', 'string', 'max:255'],
             'diachigiaohang' => ['required', 'string', 'max:255'],
             'ghichu' => ['nullable', 'string', 'max:1000'],
+            'phuongthucthanhtoan' => ['required', 'string', 'in:cod,bank'],
         ]);
 
         $cart = session()->get('cart', []);
@@ -160,13 +168,16 @@ class KhachHangController extends Controller
             $voucher = $voucherData ? Voucher::lockForUpdate()->find($voucherData['id']) : null;
             $subtotal = collect($cart)->sum(fn (array $item): float => $item['price'] * $item['qty']);
             $discount = $voucher && $voucher->isUsable($subtotal) ? $voucher->discountFor($subtotal) : 0;
+            $vat = round(max(0, $subtotal - $discount) * 0.10, 2);
+            $shipping = 0;
             $donhang->voucher_id = $voucher?->id;
             $donhang->tiengiam = $discount;
-            $donhang->tongtien = max(0, $subtotal - $discount);
+            $donhang->tongtien = max(0, $subtotal - $discount + $vat + $shipping);
             $donhang->tennguoinhan = $validated['tennguoinhan'];
             $donhang->dienthoaigiaohang = $validated['dienthoaigiaohang'];
             $donhang->diachigiaohang = $validated['diachigiaohang'];
             $donhang->ghichu = $validated['ghichu'] ?? null;
+            $donhang->phuongthucthanhtoan = $validated['phuongthucthanhtoan'];
             $donhang->save();
 
             foreach ($cart as $item) {
@@ -191,9 +202,9 @@ class KhachHangController extends Controller
                 $sanpham->decrement('soluong', $soluong);
             }
 
+            DB::commit();
             session()->forget('cart');
             session()->forget('voucher');
-            DB::commit();
 
             return redirect()->route('user.dathangthanhcong');
         } catch (Throwable $exception) {
@@ -207,6 +218,9 @@ class KhachHangController extends Controller
 
     public function getDatHangThanhCong()
     {
+        session()->forget('cart');
+        session()->forget('voucher');
+
         return view('user.dathangthanhcong');
     }
 
@@ -242,7 +256,7 @@ class KhachHangController extends Controller
                 $order->update(['tinhtrang_id' => $paidStatus->id]);
             });
         } catch (Throwable $exception) {
-            if ($exception instanceof \Symfony\Component\HttpKernel\Exception\HttpExceptionInterface) {
+            if ($exception instanceof HttpExceptionInterface) {
                 return back()->with('error', $exception->getMessage());
             }
 
